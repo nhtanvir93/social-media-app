@@ -3,11 +3,11 @@ import React from 'react'
 
 const RootLayout = () => {
   return (
-    <Stack screenOptions={
-        {
-            headerShown: false
-        }
-    }/>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
   )
 }
 

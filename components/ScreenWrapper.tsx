@@ -8,12 +8,12 @@ const ScreenWrapper = ({
   withHeader = true,
 }: {
   children: ReactNode
-  bgColor?: string,
+  bgColor?: string
   withHeader?: boolean
 }) => {
   const { top } = useSafeAreaInsets()
   const paddingTop = top > 0 ? top + 5 : 30
-  const finalPaddingTop = withHeader ? 5 : paddingTop 
+  const finalPaddingTop = withHeader ? 5 : paddingTop
 
   return (
     <View
