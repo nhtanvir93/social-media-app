@@ -1,5 +1,7 @@
 import js from '@eslint/js'
+import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
+import reactNative from 'eslint-plugin-react-native'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import unusedImports from 'eslint-plugin-unused-imports'
 import tseslint from 'typescript-eslint'
@@ -7,7 +9,14 @@ import tseslint from 'typescript-eslint'
 export default [
   // Ignore build folders
   {
-    ignores: ['node_modules', '.expo', 'dist', 'build'],
+    ignores: [
+      'node_modules',
+      '.expo',
+      'dist',
+      'build',
+      'android',
+      'ios'
+    ],
   },
 
   // Node scripts override
@@ -33,30 +42,51 @@ export default [
 
   // App code rules
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    plugins: {
-      'simple-import-sort': simpleImportSort,
+    files: ['**/*.{ts,tsx,js,jsx}'],
+     plugins: {
+      react,
       'react-hooks': reactHooks,
+      'react-native': reactNative,
+      'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     rules: {
-      /* auto sort imports */
+      /* React */
+      'react/react-in-jsx-scope': 'off',
+
+      /* Hooks */
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      /* React Native */
+      'react-native/no-unused-styles': 'warn',
+      'react-native/no-inline-styles': 'warn',
+      'react-native/no-raw-text': 'off',
+
+      /* Import sorting */
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
-      /* remove unused imports */
+      /* Remove unused imports */
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'warn',
-        { varsIgnorePattern: '^_', argsIgnorePattern: '^_' },
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+        },
       ],
 
-      /* prevent many blank lines */
-      'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
-
-      /* react hooks safety */
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      /* Clean code */
+      'no-multiple-empty-lines': [
+        'error',
+        { max: 1, maxEOF: 0 },
+      ],
     },
     languageOptions: {
       globals: {
