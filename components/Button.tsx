@@ -1,5 +1,13 @@
 import React from 'react'
-import { Pressable, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native'
+import {
+  Pressable,
+  PressableProps,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native'
 
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
@@ -10,7 +18,7 @@ type Props = {
   title: string
   btnStyle?: ViewStyle
   textStyle?: TextStyle
-  onPress: () => void
+  onPress: PressableProps['onPress']
   loading?: boolean
   hasShadow?: boolean
 }
