@@ -1,8 +1,10 @@
 import React from 'react'
-import { Pressable, StyleSheet, Text, TextStyle, ViewStyle } from 'react-native'
+import { Pressable, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native'
 
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
+
+import Loading from './Loading'
 
 type Props = {
   title: string
@@ -18,9 +20,17 @@ const Button = ({
   btnStyle,
   textStyle,
   onPress,
-  //   loading = false,
+  loading = false,
   hasShadow = true,
 }: Props) => {
+  if (loading) {
+    return (
+      <View style={btnStyle}>
+        <Loading />
+      </View>
+    )
+  }
+
   return (
     <Pressable
       onPress={onPress}
