@@ -9,14 +9,7 @@ import tseslint from 'typescript-eslint'
 export default [
   // Ignore build folders
   {
-    ignores: [
-      'node_modules',
-      '.expo',
-      'dist',
-      'build',
-      'android',
-      'ios'
-    ],
+    ignores: ['node_modules', '.expo', 'dist', 'build', 'android', 'ios'],
   },
 
   // Node scripts override
@@ -43,7 +36,7 @@ export default [
   // App code rules
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
-     plugins: {
+    plugins: {
       react,
       'react-hooks': reactHooks,
       'react-native': reactNative,
@@ -83,10 +76,7 @@ export default [
       ],
 
       /* Clean code */
-      'no-multiple-empty-lines': [
-        'error',
-        { max: 1, maxEOF: 0 },
-      ],
+      'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
     },
     languageOptions: {
       globals: {
