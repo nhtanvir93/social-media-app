@@ -5,19 +5,22 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 const ScreenWrapper = ({
   children,
   bgColor,
+  withHeader = true,
 }: {
   children: ReactNode
-  bgColor?: string
+  bgColor?: string,
+  withHeader?: boolean
 }) => {
   const { top } = useSafeAreaInsets()
   const paddingTop = top > 0 ? top + 5 : 30
+  const finalPaddingTop = withHeader ? 5 : paddingTop 
 
   return (
     <View
       style={[
         styles.container,
         {
-          paddingTop,
+          paddingTop: finalPaddingTop,
           backgroundColor: bgColor,
         },
       ]}
