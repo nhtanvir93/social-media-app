@@ -2,6 +2,8 @@ import React, { ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { heightPercentage, widthPercentage } from '@/helpers/common'
+
 const ScreenWrapper = ({
   children,
   bgColor,
@@ -35,5 +37,7 @@ export default ScreenWrapper
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: widthPercentage(4),
+    paddingVertical: heightPercentage(4),
   },
 })

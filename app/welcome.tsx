@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import Button from '@/components/Button'
 import ScreenWrapper from '@/components/ScreenWrapper'
@@ -23,7 +23,15 @@ const welcome = () => {
             Where every thought finds a home and every image tells a story.
           </Text>
         </View>
-        <Button btnStyle={styles.btn} title="Get Started" onPress={() => {}} />
+        <View style={styles.footer}>
+          <Button btnStyle={styles.btn} title="Get Started" onPress={() => {}} />
+          <View style={styles.bottomTextContainer}>
+            <Text style={styles.bottomText}>Already have an account!</Text>
+            <Pressable>
+              <Text style={[styles.loginText, styles.bottomText]}>Login</Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
     </ScreenWrapper>
   )
@@ -36,7 +44,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: widthPercentage(4),
   },
   welcomeImg: {
     width: widthPercentage(100),
@@ -54,11 +61,28 @@ const styles = StyleSheet.create({
   },
   punchLine: {
     color: theme.colors.text,
-    fontSize: heightPercentage(2.2),
+    fontSize: heightPercentage(2),
     paddingHorizontal: widthPercentage(10),
     textAlign: 'center',
   },
   btn: {
     width: widthPercentage(92),
+  },
+  footer: {
+    gap: 30,
+    width: '100%',
+  },
+  bottomTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 5,
+  },
+  bottomText: {
+    fontSize: heightPercentage(2),
+  },
+  loginText: {
+    color: theme.colors.primary,
+    fontWeight: theme.fonts.semibold,
   },
 })
