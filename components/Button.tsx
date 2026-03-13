@@ -42,7 +42,12 @@ const Button = ({
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.button, btnStyle, hasShadow && styles.shadowStyle]}
+      style={({ pressed }) => [
+        styles.button,
+        btnStyle,
+        hasShadow && styles.shadowStyle,
+        pressed && styles.buttonPressed,
+      ]}
     >
       <Text style={[styles.text, textStyle]}>{title}</Text>
     </Pressable>
@@ -56,6 +61,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     padding: heightPercentage(1.5),
     borderRadius: theme.radius.sm,
+  },
+  buttonPressed: {
+    backgroundColor: theme.colors.primaryDark,
   },
   text: {
     textAlign: 'center',
