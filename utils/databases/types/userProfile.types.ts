@@ -1,6 +1,6 @@
 import { User } from '@supabase/supabase-js'
 
-export type UserRow = {
+export type UserProfileRow = {
   id: User['id']
   name: string
   email: string
@@ -10,7 +10,7 @@ export type UserRow = {
   address: string | null
 }
 
-export type UserInsert = {
+export type UserProfileInsert = {
   id: User['id']
   name: string
   email: string
@@ -20,7 +20,7 @@ export type UserInsert = {
   address?: string | null
 }
 
-export type UserUpdate = {
+export type UserProfileUpdate = {
   name?: string
   email?: string
   image?: string | null

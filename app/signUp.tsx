@@ -13,7 +13,7 @@ import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { createUserProfile, getCurrentUserProfile } from '@/utils/databases/user'
+import { createUserProfile, getCurrentUserProfile } from '@/utils/databases/userProfile'
 
 const SignUp = () => {
   const nameRef = useRef<string>('')

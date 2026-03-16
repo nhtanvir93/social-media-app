@@ -1,12 +1,12 @@
-import { UserInsert, UserRow, UserUpdate } from './user.types'
+import { UserProfileInsert, UserProfileRow, UserProfileUpdate } from './userProfile.types'
 
 export type Database = {
   public: {
     Tables: {
       users: {
-        Row: UserRow
-        Insert: UserInsert
-        Update: UserUpdate
+        Row: UserProfileRow
+        Insert: UserProfileInsert
+        Update: UserProfileUpdate
         Relationships: []
       }
     }

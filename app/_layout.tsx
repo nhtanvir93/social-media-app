@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 
 import { AuthProvider } from '@/contexts/Auth'
 import { useAuth } from '@/hooks/useAuth'
-import { getCurrentUserProfile } from '@/utils/databases/user'
+import { getCurrentUserProfile } from '@/utils/databases/userProfile'
 
 const RootLayout = () => {
   return (

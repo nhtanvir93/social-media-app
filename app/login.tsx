@@ -12,7 +12,7 @@ import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUserProfile } from '@/utils/databases/user'
+import { getCurrentUserProfile } from '@/utils/databases/userProfile'
 
 const Login = () => {
   const emailRef = useRef<string>('')
