@@ -27,7 +27,7 @@ const Welcome = () => {
           </Text>
         </View>
         <View style={styles.footer}>
-          <Button btnStyle={styles.btn} title="Get Started" onPress={() => {}} />
+          <Button title="Get Started" onPress={() => {}} />
           <View style={styles.bottomTextContainer}>
             <Text style={styles.bottomText}>Already have an account!</Text>
             <Pressable onPress={() => router.push('/login')}>
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
   },
   bottomText: {
     fontSize: heightPercentage(2),
+    color: theme.colors.primaryDark,
   },
   loginText: {
     color: theme.colors.primary,
