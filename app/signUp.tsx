@@ -12,6 +12,7 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { supabase } from '@/lib/supabase'
+import { createUserProfile } from '@/utils/databases/user'
 
 const SignUp = () => {
   const router = useRouter()
@@ -49,6 +50,12 @@ const SignUp = () => {
       if (!data.user) {
         throw new Error('User not returned after signup.')
       }
+
+      createUserProfile({
+        id: data.user.id,
+        email,
+        name,
+      })
 
       router.replace('/home')
     } catch (err: unknown) {
