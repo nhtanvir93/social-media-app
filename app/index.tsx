@@ -68,9 +68,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: widthPercentage(10),
     textAlign: 'center',
   },
-  btn: {
-    width: widthPercentage(92),
-  },
   footer: {
     gap: 30,
     width: '100%',
