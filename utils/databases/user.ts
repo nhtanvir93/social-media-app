@@ -3,15 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { Database } from './types/database.types'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
-type UserInsert = Database['public']['Tables']['users']['Insert']
-
-export const createUserProfile = async (payload: UserInsert) => {
-  const { error } = await supabase.from('users').insert(payload)
-
-  if (error) throw error
-
-  return true
-}
+type UserProfileInsert = Database['public']['Tables']['users']['Insert']
 
 export const getCurrentUser = async () => {
   const {
@@ -22,6 +14,14 @@ export const getCurrentUser = async () => {
   if (error || !user) return null
 
   return user
+}
+
+export const createUserProfile = async (payload: UserProfileInsert) => {
+  const { error } = await supabase.from('users').insert(payload)
+
+  if (error) throw error
+
+  return true
 }
 
 export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
