@@ -31,7 +31,7 @@ const Welcome = () => {
           <View style={styles.bottomTextContainer}>
             <Text style={styles.bottomText}>Already have an account!</Text>
             <Pressable onPress={() => router.push('/login')}>
-              <Text style={[styles.loginText, styles.bottomText]}>Login</Text>
+              <Text style={[styles.bottomText, styles.loginText]}>Login</Text>
             </Pressable>
           </View>
         </View>
