@@ -13,7 +13,7 @@ import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { createUserProfile, getCurrentUser } from '@/utils/databases/user'
+import { createUserProfile, getCurrentUserProfile } from '@/utils/databases/user'
 
 const SignUp = () => {
   const nameRef = useRef<string>('')
@@ -22,7 +22,7 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false)
 
   const router = useRouter()
-  const { setUser } = useAuth()
+  const { setUserProfile } = useAuth()
 
   const onSubmit = async () => {
     const name = nameRef.current?.trim()
@@ -59,10 +59,10 @@ const SignUp = () => {
         name,
       })
 
-      const user = await getCurrentUser()
+      const userProfile = await getCurrentUserProfile()
 
-      if (user) {
-        setUser(user)
+      if (userProfile) {
+        setUserProfile(userProfile)
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong'

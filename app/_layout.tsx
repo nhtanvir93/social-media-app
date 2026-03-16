@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 
 import { AuthProvider } from '@/contexts/Auth'
 import { useAuth } from '@/hooks/useAuth'
-import { getCurrentUser } from '@/utils/databases/user'
+import { getCurrentUserProfile } from '@/utils/databases/user'
 
 const RootLayout = () => {
   return (
@@ -15,29 +15,29 @@ const RootLayout = () => {
 
 const MainLayout = () => {
   const router = useRouter()
-  const { user: loggedInUser, setUser } = useAuth()
+  const { userProfile, setUserProfile } = useAuth()
 
   useEffect(() => {
-    const setCurrentUser = async () => {
-      const user = await getCurrentUser()
+    const setCurrentUserProfile = async () => {
+      const currentUserProfile = await getCurrentUserProfile()
 
-      if (user) {
-        setUser(user)
+      if (currentUserProfile) {
+        setUserProfile(currentUserProfile)
       } else {
-        setUser(null)
+        setUserProfile(null)
       }
     }
 
-    setCurrentUser()
-  }, [setUser])
+    setCurrentUserProfile()
+  }, [setUserProfile])
 
   useEffect(() => {
-    if (loggedInUser) {
+    if (userProfile) {
       router.replace('/home')
-    } else if (loggedInUser === null) {
+    } else if (userProfile === null) {
       router.replace('/welcome')
     }
-  }, [router, loggedInUser])
+  }, [router, userProfile])
 
   return (
     <Stack

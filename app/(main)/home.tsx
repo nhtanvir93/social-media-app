@@ -7,10 +7,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
 const Home = () => {
-  const { setUser } = useAuth()
+  const { setUserProfile } = useAuth()
 
   const handleLogout = async () => {
-    setUser(null)
+    setUserProfile(null)
     const { error } = await supabase.auth.signOut()
 
     if (error) {

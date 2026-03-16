@@ -1,4 +1,3 @@
-import { User } from '@supabase/supabase-js'
 import React, {
   createContext,
   Dispatch,
@@ -7,21 +6,27 @@ import React, {
   useState,
 } from 'react'
 
+import { Database } from '@/utils/databases/types/database.types'
+
+type UserProfile = Database['public']['Tables']['users']['Row']
+
 type AuthContextType = {
-  user: User | null | undefined
-  setUser: Dispatch<SetStateAction<User | null | undefined>>
+  userProfile: UserProfile | null | undefined
+  setUserProfile: Dispatch<SetStateAction<UserProfile | null | undefined>>
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null | undefined>(undefined)
+  const [userProfile, setUserProfile] = useState<UserProfile | null | undefined>(
+    undefined,
+  )
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        setUser,
+        userProfile,
+        setUserProfile,
       }}
     >
       {children}

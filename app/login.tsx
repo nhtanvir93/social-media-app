@@ -12,7 +12,7 @@ import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/utils/databases/user'
+import { getCurrentUserProfile } from '@/utils/databases/user'
 
 const Login = () => {
   const emailRef = useRef<string>('')
@@ -20,7 +20,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
 
   const router = useRouter()
-  const { setUser } = useAuth()
+  const { setUserProfile } = useAuth()
 
   const onSubmit = async () => {
     const email = emailRef.current?.trim()
@@ -45,10 +45,10 @@ const Login = () => {
       return
     }
 
-    const user = await getCurrentUser()
+    const userProfile = await getCurrentUserProfile()
 
-    if (user) {
-      setUser(user)
+    if (userProfile) {
+      setUserProfile(userProfile)
     }
   }
 
