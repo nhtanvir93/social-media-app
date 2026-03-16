@@ -10,14 +10,17 @@ import Input from '@/components/Input'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
+import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/utils/databases/user'
 
 const Login = () => {
-  const router = useRouter()
-
   const emailRef = useRef<string>('')
   const passwordRef = useRef<string>('')
   const [loading, setLoading] = useState(false)
+
+  const router = useRouter()
+  const { setUser } = useAuth()
 
   const onSubmit = async () => {
     const email = emailRef.current?.trim()
@@ -42,7 +45,11 @@ const Login = () => {
       return
     }
 
-    router.replace('/home')
+    const user = await getCurrentUser()
+
+    if (user) {
+      setUser(user)
+    }
   }
 
   return (

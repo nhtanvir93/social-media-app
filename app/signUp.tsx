@@ -11,16 +11,18 @@ import Input from '@/components/Input'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
+import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { createUserProfile } from '@/utils/databases/user'
+import { createUserProfile, getCurrentUser } from '@/utils/databases/user'
 
 const SignUp = () => {
-  const router = useRouter()
-
   const nameRef = useRef<string>('')
   const emailRef = useRef<string>('')
   const passwordRef = useRef<string>('')
   const [loading, setLoading] = useState(false)
+
+  const router = useRouter()
+  const { setUser } = useAuth()
 
   const onSubmit = async () => {
     const name = nameRef.current?.trim()
@@ -57,7 +59,11 @@ const SignUp = () => {
         name,
       })
 
-      router.replace('/home')
+      const user = await getCurrentUser()
+
+      if (user) {
+        setUser(user)
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong'
       console.error('Signup error:', err)

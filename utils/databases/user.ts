@@ -14,3 +14,16 @@ export const createUserProfile = async ({
   if (error) throw error
   return true
 }
+
+export const getCurrentUser = async () => {
+  const {
+    error,
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    return null
+  }
+
+  return user
+}
