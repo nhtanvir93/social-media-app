@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -7,7 +8,9 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 
-const welcome = () => {
+const Welcome = () => {
+  const router = useRouter()
+
   return (
     <ScreenWrapper withHeader={false} bgColor="#fff">
       <StatusBar style="dark" />
@@ -27,7 +30,7 @@ const welcome = () => {
           <Button btnStyle={styles.btn} title="Get Started" onPress={() => {}} />
           <View style={styles.bottomTextContainer}>
             <Text style={styles.bottomText}>Already have an account!</Text>
-            <Pressable>
+            <Pressable onPress={() => router.push('/login')}>
               <Text style={[styles.loginText, styles.bottomText]}>Login</Text>
             </Pressable>
           </View>
@@ -37,7 +40,7 @@ const welcome = () => {
   )
 }
 
-export default welcome
+export default Welcome
 
 const styles = StyleSheet.create({
   container: {

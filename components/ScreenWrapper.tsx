@@ -6,7 +6,7 @@ import { heightPercentage, widthPercentage } from '@/helpers/common'
 
 const ScreenWrapper = ({
   children,
-  bgColor,
+  bgColor = '#fff',
   withHeader = true,
 }: {
   children: ReactNode
@@ -37,7 +37,7 @@ export default ScreenWrapper
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: widthPercentage(4),
-    paddingVertical: heightPercentage(4),
+    paddingHorizontal: widthPercentage(6),
+    paddingVertical: heightPercentage(6),
   },
 })

@@ -19,7 +19,7 @@ export const theme = {
   fonts: {
     medium: '500',
     semibold: '600',
-    blod: '700',
+    bold: '700',
     extraBold: '800',
   },
   radius: {
