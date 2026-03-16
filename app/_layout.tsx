@@ -15,7 +15,7 @@ const RootLayout = () => {
 
 const MainLayout = () => {
   const router = useRouter()
-  const { setUser } = useAuth()
+  const { user: loggedInUser, setUser } = useAuth()
 
   useEffect(() => {
     const setCurrentUser = async () => {
@@ -23,15 +23,21 @@ const MainLayout = () => {
 
       if (user) {
         setUser(user)
-        router.replace('/home')
       } else {
         setUser(null)
-        router.replace('/')
       }
     }
 
     setCurrentUser()
-  }, [router, setUser])
+  }, [setUser])
+
+  useEffect(() => {
+    if (loggedInUser) {
+      router.replace('/home')
+    } else if (loggedInUser === null) {
+      router.replace('/welcome')
+    }
+  }, [router, loggedInUser])
 
   return (
     <Stack

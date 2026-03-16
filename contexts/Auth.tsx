@@ -8,14 +8,14 @@ import React, {
 } from 'react'
 
 type AuthContextType = {
-  user: User | null
-  setUser: Dispatch<SetStateAction<User | null>>
+  user: User | null | undefined
+  setUser: Dispatch<SetStateAction<User | null | undefined>>
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null | undefined>(undefined)
 
   return (
     <AuthContext.Provider
