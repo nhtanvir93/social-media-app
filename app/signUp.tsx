@@ -11,6 +11,7 @@ import Input from '@/components/Input'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
+import { supabase } from '@/lib/supabase'
 
 const SignUp = () => {
   const router = useRouter()
@@ -20,13 +21,45 @@ const SignUp = () => {
   const passwordRef = useRef<string>('')
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = () => {
-    if (!nameRef.current || !emailRef.current || !passwordRef.current) {
+  const onSubmit = async () => {
+    const name = nameRef.current?.trim()
+    const email = emailRef.current?.trim()
+    const password = passwordRef.current?.trim()
+
+    if (!name || !email || !password) {
       Alert.alert('Sign Up', 'Please fill all the fields!')
       return
     }
 
     setLoading(true)
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name },
+        },
+      })
+
+      if (error) {
+        throw error
+      }
+
+      if (!data.user) {
+        throw new Error('User not returned after signup.')
+      }
+
+      console.log('Signed up user:', data.user)
+
+      Alert.alert('Sign Up', 'Account created successfully!')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong'
+      console.error('Signup error:', err)
+      Alert.alert('Sign Up', message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
