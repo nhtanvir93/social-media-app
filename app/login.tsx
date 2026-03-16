@@ -10,8 +10,7 @@ import Input from '@/components/Input'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
-
-// kFoWlxudi4vXu9sk
+import { supabase } from '@/lib/supabase'
 
 const Login = () => {
   const router = useRouter()
@@ -20,13 +19,30 @@ const Login = () => {
   const passwordRef = useRef<string>('')
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = () => {
-    if (!emailRef.current || !passwordRef.current) {
+  const onSubmit = async () => {
+    const email = emailRef.current?.trim()
+    const password = passwordRef.current?.trim()
+
+    if (!email || !password) {
       Alert.alert('Login', 'Please fill all the fields!')
       return
     }
 
     setLoading(true)
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    setLoading(false)
+
+    if (error) {
+      Alert.alert(error.message)
+      return
+    }
+
+    router.replace('/home')
   }
 
   return (

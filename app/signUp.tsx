@@ -50,9 +50,7 @@ const SignUp = () => {
         throw new Error('User not returned after signup.')
       }
 
-      console.log('Signed up user:', data.user)
-
-      Alert.alert('Sign Up', 'Account created successfully!')
+      router.replace('/home')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong'
       console.error('Signup error:', err)
