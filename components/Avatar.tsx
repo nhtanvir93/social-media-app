@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    borderColor: theme.colors.gray,
+    borderColor: theme.colors.primary,
     borderWidth: 2,
   },
 })

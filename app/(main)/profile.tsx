@@ -43,10 +43,7 @@ const UserHeader = () => {
   return (
     <View>
       <Header title="Profile">
-        <TouchableOpacity
-          onPress={handleLogout}
-          style={[styles.logoutBtnContainer, { borderRadius: theme.radius.xxl }]}
-        >
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtnContainer}>
           <AntDesign name="logout" size={20} color={theme.colors.rose} />
         </TouchableOpacity>
       </Header>
@@ -62,5 +59,6 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#fecaca',
     padding: 6,
+    borderRadius: theme.radius.xxl,
   },
 })

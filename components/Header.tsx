@@ -25,7 +25,7 @@ const Header = ({
           <BackButton router={router} />
         </View>
       )}
-      <Text style={[styles.title, { color: theme.colors.primary }]}>{title}</Text>
+      <Text style={styles.title}>{title}</Text>
       {children}
     </View>
   )
@@ -51,5 +51,6 @@ const styles = StyleSheet.create({
     fontSize: heightPercentage(4),
     fontWeight: theme.fonts.extraBold,
     letterSpacing: 2,
+    color: theme.colors.primary,
   },
 })
