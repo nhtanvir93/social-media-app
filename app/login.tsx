@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router'
 import React, { useRef, useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 
-import BackButton from '@/components/BackButton'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import ScreenWrapper from '@/components/ScreenWrapper'
@@ -56,7 +55,6 @@ const Login = () => {
   return (
     <ScreenWrapper withHeader={false}>
       <View style={styles.container}>
-        <BackButton router={router} />
         <View>
           <Text style={styles.welcomeText}>Hey,</Text>
           <Text style={styles.welcomeText}>Welcome Back</Text>
@@ -81,7 +79,7 @@ const Login = () => {
         </View>
         <View style={styles.footer}>
           <Text style={styles.footerText}>Don't have an account ?</Text>
-          <Pressable onPress={() => router.push('/signUp')}>
+          <Pressable onPress={() => router.replace('/signUp')}>
             <Text style={styles.signUpBtn}>Sign Up</Text>
           </Pressable>
         </View>

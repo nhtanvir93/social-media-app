@@ -27,10 +27,10 @@ const Welcome = () => {
           </Text>
         </View>
         <View style={styles.footer}>
-          <Button title="Get Started" onPress={() => router.push('/signUp')} />
+          <Button title="Get Started" onPress={() => router.replace('/signUp')} />
           <View style={styles.bottomTextContainer}>
             <Text style={styles.bottomText}>Already have an account!</Text>
-            <Pressable onPress={() => router.push('/login')}>
+            <Pressable onPress={() => router.replace('/login')}>
               <Text style={[styles.bottomText, styles.loginText]}>Login</Text>
             </Pressable>
           </View>
