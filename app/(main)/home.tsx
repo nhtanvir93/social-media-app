@@ -5,6 +5,7 @@ import React from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import Avatar from '@/components/Avatar'
 import Button from '@/components/Button'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
@@ -14,7 +15,7 @@ import { supabase } from '@/lib/supabase'
 
 const Home = () => {
   const router = useRouter()
-  const { setUserProfile } = useAuth()
+  const { userProfile, setUserProfile } = useAuth()
   const { top } = useSafeAreaInsets()
 
   const handleLogout = async () => {
@@ -47,7 +48,7 @@ const Home = () => {
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={() => router.push('/profile')}
           >
-            <Feather name="user" size={24} color={theme.colors.primary} />
+            <Avatar uri={userProfile?.image} />
           </Pressable>
         </View>
       </View>
@@ -82,6 +83,8 @@ const styles = StyleSheet.create({
   },
   headerIcons: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 16,
   },
 })
