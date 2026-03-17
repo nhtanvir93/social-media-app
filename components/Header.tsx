@@ -19,7 +19,7 @@ const Header = ({
   const router = useRouter()
 
   return (
-    <View style={[styles.container]}>
+    <View style={styles.container}>
       {showBackButton && (
         <View style={styles.backBtnContainer}>
           <BackButton router={router} />
@@ -41,7 +41,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: heightPercentage(1.5),
   },
   backBtnContainer: {
     position: 'absolute',
