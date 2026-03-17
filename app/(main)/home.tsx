@@ -1,13 +1,21 @@
+import Feather from '@expo/vector-icons/Feather'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { useRouter } from 'expo-router'
 import React from 'react'
-import { Alert, StyleSheet, Text } from 'react-native'
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import Button from '@/components/Button'
 import ScreenWrapper from '@/components/ScreenWrapper'
+import { theme } from '@/constants/theme'
+import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
 const Home = () => {
+  const router = useRouter()
   const { setUserProfile } = useAuth()
+  const { top } = useSafeAreaInsets()
 
   const handleLogout = async () => {
     setUserProfile(null)
@@ -20,8 +28,32 @@ const Home = () => {
 
   return (
     <ScreenWrapper withHeader={false}>
-      <Text style={styles.title}>Home</Text>
-      <Button title="Sign Out" onPress={handleLogout} />
+      <View style={[styles.header, { top }]}>
+        <Text style={styles.brandTitle}>LinkUp</Text>
+        <View style={styles.headerIcons}>
+          <Pressable
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={() => router.push('/notifications')}
+          >
+            <Ionicons name="notifications" size={24} color={theme.colors.primary} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={() => router.push('/createPost')}
+          >
+            <Feather name="plus-square" size={24} color={theme.colors.primary} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={() => router.push('/profile')}
+          >
+            <Feather name="user" size={24} color={theme.colors.primary} />
+          </Pressable>
+        </View>
+      </View>
+      <View style={{ top: heightPercentage(3) + top }}>
+        <Button title="Sign Out" onPress={handleLogout} />
+      </View>
     </ScreenWrapper>
   )
 }
@@ -29,7 +61,27 @@ const Home = () => {
 export default Home
 
 const styles = StyleSheet.create({
-  title: {
-    fontWeight: 900,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    paddingHorizontal: widthPercentage(4),
+    paddingVertical: heightPercentage(1.5),
+    borderColor: theme.colors.primary,
+    borderBottomWidth: 0.2,
+  },
+  brandTitle: {
+    fontSize: heightPercentage(3.5),
+    fontWeight: theme.fonts.extraBold,
+    color: theme.colors.primary,
+    letterSpacing: 2,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    gap: 16,
   },
 })
