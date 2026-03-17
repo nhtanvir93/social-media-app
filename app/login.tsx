@@ -38,9 +38,8 @@ const Login = () => {
       password,
     })
 
-    setLoading(false)
-
     if (error) {
+      setLoading(false)
       Alert.alert(error.message)
       return
     }
@@ -50,6 +49,8 @@ const Login = () => {
     if (userProfile) {
       setUserProfile(userProfile)
     }
+
+    setLoading(false)
   }
 
   return (
