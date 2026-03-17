@@ -25,7 +25,7 @@ const Header = ({
           <BackButton router={router} />
         </View>
       )}
-      <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
+      <Text style={[styles.title, { color: theme.colors.primary }]}>{title}</Text>
       {children}
     </View>
   )
