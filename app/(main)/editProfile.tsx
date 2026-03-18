@@ -1,7 +1,6 @@
 import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import Octicons from '@expo/vector-icons/Octicons'
-import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
@@ -27,7 +26,6 @@ const EditProfile = () => {
   })
   const [loading, setLoading] = useState(false)
 
-  const router = useRouter()
   const { userProfile, setUserProfile } = useAuth()
 
   useEffect(() => {
@@ -59,7 +57,6 @@ const EditProfile = () => {
           <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} />
           <View style={styles.shadowWrapper}>
             <Pressable
-              onPress={() => router.push('/editProfile')}
               style={({ pressed }) => [
                 styles.editIconContainer,
                 pressed && { opacity: 0.6 },
@@ -74,7 +71,7 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your name"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, name: value })
+              setUserProfileUpdate({ ...userProfileUpdate, name: value.trim() })
             }
             value={userProfileUpdate.name}
             icon={<Feather name="user" size={24} color={theme.colors.textLight} />}
@@ -82,7 +79,7 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your phone number"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, phoneNumber: value })
+              setUserProfileUpdate({ ...userProfileUpdate, phoneNumber: value.trim() })
             }
             value={userProfileUpdate.phoneNumber!}
             icon={<Entypo name="mobile" size={24} color={theme.colors.textLight} />}
@@ -90,18 +87,18 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your address"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, address: value })
+              setUserProfileUpdate({ ...userProfileUpdate, address: value.trim() })
             }
             value={userProfileUpdate.address!}
-            multiline
             icon={<Entypo name="address" size={24} color={theme.colors.textLight} />}
           />
           <Input
             placeholder="Enter your bio"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, bio: value })
+              setUserProfileUpdate({ ...userProfileUpdate, bio: value.trim() })
             }
             value={userProfileUpdate.bio!}
+            multiline
             icon={<Octicons name="quote" size={24} color={theme.colors.textLight} />}
           />
           <Button title="Update" loading={loading} onPress={handleSubmit} />
@@ -148,7 +145,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   formContainer: {
-    marginTop: heightPercentage(2),
+    marginTop: heightPercentage(5),
     gap: 20,
   },
 })
