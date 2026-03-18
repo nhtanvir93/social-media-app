@@ -1,8 +1,10 @@
 import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import Octicons from '@expo/vector-icons/Octicons'
+import * as ImagePicker from 'expo-image-picker'
 import React, { useEffect, useState } from 'react'
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -22,6 +24,7 @@ import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { Database } from '@/utils/databases/types/database.types'
 import { updateUserProfile } from '@/utils/databases/userProfile'
+import { uploadFile } from '@/utils/imageUtil'
 
 type UserProfileUpdate = Database['public']['Tables']['users']['Update']
 
@@ -47,12 +50,60 @@ const EditProfile = () => {
       return
     }
 
+    const { name, phoneNumber, address, bio, image } = userProfileUpdate
+
+    if (!name || !phoneNumber || !address || !bio) {
+      Alert.alert('Profile', 'Pleass fill all the fields')
+      return
+    }
+
+    let newProfileImage
+
+    if (image) {
+      const uploadResponse = await uploadFile(image)
+
+      if (!uploadResponse.success) {
+        Alert.alert('Profile', uploadResponse.message)
+        return
+      }
+
+      newProfileImage = uploadResponse.publicFileUrl
+    }
+
     setLoading(true)
 
-    const updatedUserProfile = await updateUserProfile(userProfileUpdate, userProfile.id)
+    const payload = newProfileImage
+      ? { ...userProfileUpdate, image: newProfileImage }
+      : userProfileUpdate
+
+    const updatedUserProfile = await updateUserProfile(payload, userProfile.id)
     setUserProfile(updatedUserProfile)
 
     setLoading(false)
+  }
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (!permissionResult.granted) {
+      Alert.alert(
+        'Permission required',
+        'Permission to access the media library is required.',
+      )
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    })
+
+    if (!result.canceled) {
+      console.log(result.assets[0].uri)
+      setUserProfileUpdate({ ...userProfileUpdate, image: result.assets[0].uri })
+    }
   }
 
   return (
@@ -66,9 +117,14 @@ const EditProfile = () => {
         </View>
         <ScrollView style={styles.container}>
           <View style={styles.avatarContainer}>
-            <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} />
+            <Avatar
+              size={heightPercentage(16)}
+              rounded={theme.radius.xxl}
+              uri={userProfileUpdate.image}
+            />
             <View style={styles.shadowWrapper}>
               <Pressable
+                onPress={pickImage}
                 style={({ pressed }) => [
                   styles.editIconContainer,
                   pressed && { opacity: 0.6 },
