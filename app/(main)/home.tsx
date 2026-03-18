@@ -37,7 +37,7 @@ const Home = () => {
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={() => router.push('/profile')}
           >
-            <Avatar uri={userProfile?.image} />
+            <Avatar uri={userProfile?.image} rounded={theme.radius.xxl} />
           </Pressable>
         </View>
       </View>
