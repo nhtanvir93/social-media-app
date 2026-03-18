@@ -1,32 +1,30 @@
+import { File } from 'expo-file-system'
+
 import { supabase } from '@/lib/supabase'
 
 export const getUserImageSrcUrl = (imagePath: string | null | undefined) => {
-  if (imagePath) {
-    return imagePath
-  } else {
-    return require('../assets/images/default-user.png')
-  }
+  return imagePath || require('../assets/images/default-user.png')
 }
 
-export const getBlobFromUri = async (uri: string): Promise<Blob | null> => {
+export const getFileFromUri = async (uri: string): Promise<Blob | null> => {
   try {
     const response = await fetch(uri)
 
     if (!response.ok) {
-      console.error(`Failed to fetch ${uri}: ${response.status} ${response.statusText}`)
+      console.error(`Failed to fetch ${uri}: ${response.status}`)
       return null
     }
 
     const blob = await response.blob()
 
     if (!blob || blob.size === 0) {
-      console.warn(`No blob created from URI: ${uri}`)
+      console.warn(`Empty file from URI: ${uri}`)
       return null
     }
 
     return blob
   } catch (error) {
-    console.error(`Error creating blob from URI: ${uri}`, error)
+    console.error(`Error reading file from URI: ${uri}`, error)
     return null
   }
 }
@@ -53,9 +51,7 @@ export const isValidFileSize = (
     }
   }
 
-  return {
-    success: true,
-  }
+  return { success: true }
 }
 
 export const getFileType = (blob: Blob) => {
@@ -71,56 +67,71 @@ type UploadResult =
   | { success: true; publicFileUrl: string }
   | { success: false; message: string }
 
-export const uploadFile = async (uri: string): Promise<UploadResult> => {
+export const uploadFile = async (fileUri: string): Promise<UploadResult> => {
   try {
-    const blob = await getBlobFromUri(uri)
+    const blob = await getFileFromUri(fileUri)
 
-    if (blob === null) {
+    if (!blob) {
       return {
         success: false,
-        message: 'Failed to create blob file',
+        message: 'Failed to read file',
       }
     }
 
     const sizeValidation = isValidFileSize(blob)
-    if (!sizeValidation.success) {
-      return sizeValidation
-    }
+    if (!sizeValidation.success) return sizeValidation
 
     const EXTENSIONS = {
       image: '.png',
       video: '.mp4',
     }
-    const contentType = getFileType(blob)
-    if (!(contentType in EXTENSIONS) || contentType === 'unknown') {
+
+    const fileType = getFileType(blob)
+
+    if (!(fileType in EXTENSIONS) || fileType === 'unknown') {
       return {
         success: false,
-        message: 'No content type declared for the uploading file',
+        message: 'Unsupported file type',
       }
     }
 
-    const fileName = `${Date.now()}${EXTENSIONS[contentType]}`
+    const fileName = `${Date.now()}${EXTENSIONS[fileType]}`
     const bucketId = process.env.EXPO_PUBLIC_BUCKET_ID || 'uploads'
 
-    console.log(`BuckedID : ${bucketId}`)
+    const fileArrayBuffer = await getFileArrayBuffer(fileUri)
 
-    const { data, error } = await supabase.storage.from(bucketId).upload(fileName, blob, {
-      upsert: false,
-      contentType: `${contentType}/*`,
-    })
+    if (!fileArrayBuffer) {
+      return {
+        success: false,
+        message: 'Failed to create array buffer for the uploaded file',
+      }
+    }
+
+    console.log('Uploading to bucket:', bucketId)
+    console.log('File size:', blob.size, 'Type:', blob.type)
+
+    const { data, error } = await supabase.storage
+      .from(bucketId)
+      .upload(fileName, fileArrayBuffer, {
+        contentType: blob.type || 'application/octet-stream',
+        upsert: false,
+      })
 
     if (error) {
       console.log('Upload error:', error)
       return {
         success: false,
-        message: 'Failed to upload the file',
+        message: error.message || 'Upload failed',
       }
     }
 
+    const { data: publicUrlData } = supabase.storage
+      .from(bucketId)
+      .getPublicUrl(data.path)
+
     return {
       success: true,
-      publicFileUrl: supabase.storage.from(bucketId).getPublicUrl(data.path).data
-        .publicUrl,
+      publicFileUrl: publicUrlData.publicUrl,
     }
   } catch (err) {
     console.log('Upload failed:', err)
@@ -128,5 +139,18 @@ export const uploadFile = async (uri: string): Promise<UploadResult> => {
       success: false,
       message: 'Something went wrong, please try again',
     }
+  }
+}
+
+export const getFileArrayBuffer = async (fileUri: string) => {
+  try {
+    const file = new File(fileUri)
+
+    const arrayBuffer = await file.arrayBuffer()
+
+    return arrayBuffer
+  } catch (error) {
+    console.log('Error reading file:', error)
+    return null
   }
 }
