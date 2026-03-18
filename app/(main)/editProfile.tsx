@@ -2,7 +2,15 @@ import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import Octicons from '@expo/vector-icons/Octicons'
 import React, { useEffect, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 
 import Avatar from '@/components/Avatar'
 import Button from '@/components/Button'
@@ -49,61 +57,66 @@ const EditProfile = () => {
 
   return (
     <ScreenWrapper withHeader={false}>
-      <View>
-        <Header title="Edit Profile" />
-      </View>
-      <ScrollView style={styles.container}>
-        <View style={styles.avatarContainer}>
-          <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} />
-          <View style={styles.shadowWrapper}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.editIconContainer,
-                pressed && { opacity: 0.6 },
-              ]}
-            >
-              <Feather name="camera" size={20} color={theme.colors.primary} />
-            </Pressable>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingWrapper}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View>
+          <Header title="Edit Profile" />
+        </View>
+        <ScrollView style={styles.container}>
+          <View style={styles.avatarContainer}>
+            <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} />
+            <View style={styles.shadowWrapper}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.editIconContainer,
+                  pressed && { opacity: 0.6 },
+                ]}
+              >
+                <Feather name="camera" size={20} color={theme.colors.primary} />
+              </Pressable>
+            </View>
           </View>
-        </View>
-        <View style={styles.formContainer}>
-          <Text style={styles.formInfoText}>Please fill your profile details</Text>
-          <Input
-            placeholder="Enter your name"
-            onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, name: value })
-            }
-            value={userProfileUpdate.name}
-            icon={<Feather name="user" size={24} color={theme.colors.textLight} />}
-          />
-          <Input
-            placeholder="Enter your phone number"
-            onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, phoneNumber: value })
-            }
-            value={userProfileUpdate.phoneNumber!}
-            icon={<Entypo name="mobile" size={24} color={theme.colors.textLight} />}
-          />
-          <Input
-            placeholder="Enter your address"
-            onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, address: value })
-            }
-            value={userProfileUpdate.address!}
-            icon={<Entypo name="address" size={24} color={theme.colors.textLight} />}
-          />
-          <Input
-            placeholder="Enter your bio"
-            onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, bio: value })
-            }
-            value={userProfileUpdate.bio!}
-            multiline
-            icon={<Octicons name="quote" size={24} color={theme.colors.textLight} />}
-          />
-          <Button title="Update" loading={loading} onPress={handleSubmit} />
-        </View>
-      </ScrollView>
+          <View style={styles.formContainer}>
+            <Text style={styles.formInfoText}>Please fill your profile details</Text>
+            <Input
+              placeholder="Enter your name"
+              onChangeText={(value) =>
+                setUserProfileUpdate({ ...userProfileUpdate, name: value })
+              }
+              value={userProfileUpdate.name}
+              icon={<Feather name="user" size={24} color={theme.colors.textLight} />}
+            />
+            <Input
+              placeholder="Enter your phone number"
+              onChangeText={(value) =>
+                setUserProfileUpdate({ ...userProfileUpdate, phoneNumber: value })
+              }
+              value={userProfileUpdate.phoneNumber!}
+              icon={<Entypo name="mobile" size={24} color={theme.colors.textLight} />}
+            />
+            <Input
+              placeholder="Enter your address"
+              onChangeText={(value) =>
+                setUserProfileUpdate({ ...userProfileUpdate, address: value })
+              }
+              value={userProfileUpdate.address!}
+              icon={<Entypo name="address" size={24} color={theme.colors.textLight} />}
+            />
+            <Input
+              placeholder="Enter your bio"
+              onChangeText={(value) =>
+                setUserProfileUpdate({ ...userProfileUpdate, bio: value })
+              }
+              value={userProfileUpdate.bio!}
+              multiline
+              icon={<Octicons name="quote" size={24} color={theme.colors.textLight} />}
+            />
+            <Button title="Update" loading={loading} onPress={handleSubmit} />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ScreenWrapper>
   )
 }
@@ -111,6 +124,9 @@ const EditProfile = () => {
 export default EditProfile
 
 const styles = StyleSheet.create({
+  keyboardAvoidingWrapper: {
+    flex: 1,
+  },
   container: {
     marginTop: heightPercentage(12),
     gap: 20,
