@@ -71,7 +71,7 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your name"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, name: value.trim() })
+              setUserProfileUpdate({ ...userProfileUpdate, name: value })
             }
             value={userProfileUpdate.name}
             icon={<Feather name="user" size={24} color={theme.colors.textLight} />}
@@ -79,7 +79,7 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your phone number"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, phoneNumber: value.trim() })
+              setUserProfileUpdate({ ...userProfileUpdate, phoneNumber: value })
             }
             value={userProfileUpdate.phoneNumber!}
             icon={<Entypo name="mobile" size={24} color={theme.colors.textLight} />}
@@ -87,7 +87,7 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your address"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, address: value.trim() })
+              setUserProfileUpdate({ ...userProfileUpdate, address: value })
             }
             value={userProfileUpdate.address!}
             icon={<Entypo name="address" size={24} color={theme.colors.textLight} />}
@@ -95,7 +95,7 @@ const EditProfile = () => {
           <Input
             placeholder="Enter your bio"
             onChangeText={(value) =>
-              setUserProfileUpdate({ ...userProfileUpdate, bio: value.trim() })
+              setUserProfileUpdate({ ...userProfileUpdate, bio: value })
             }
             value={userProfileUpdate.bio!}
             multiline
