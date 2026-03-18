@@ -3,6 +3,7 @@ import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import Fontisto from '@expo/vector-icons/Fontisto'
 import Octicons from '@expo/vector-icons/Octicons'
+import { router } from 'expo-router'
 import React from 'react'
 import { Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -25,6 +26,7 @@ const Profile = () => {
           <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} />
           <View style={styles.shadowWrapper}>
             <Pressable
+              onPress={() => router.push('/editProfile')}
               style={({ pressed }) => [
                 styles.editIconContainer,
                 pressed && { opacity: 0.6 },

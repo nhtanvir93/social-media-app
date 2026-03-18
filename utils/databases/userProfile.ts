@@ -4,6 +4,7 @@ import { Database } from './types/database.types'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 type UserProfileInsert = Database['public']['Tables']['users']['Insert']
+type UserProfileUpdate = Database['public']['Tables']['users']['Update']
 
 export const getCurrentUser = async () => {
   const {
@@ -36,6 +37,25 @@ export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
     .single()
 
   if (error) return null
+
+  return data
+}
+
+export const updateUserProfile = async (
+  updates: UserProfileUpdate,
+  userId: string,
+): Promise<UserProfile | null> => {
+  const { data, error } = await supabase
+    .from('users')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single()
+
+  if (error) {
+    console.log('Update error:', error)
+    return null
+  }
 
   return data
 }

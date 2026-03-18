@@ -14,7 +14,7 @@ const Header = ({
 }: {
   title: string
   showBackButton?: boolean
-  children: ReactNode
+  children?: ReactNode
 }) => {
   const router = useRouter()
 

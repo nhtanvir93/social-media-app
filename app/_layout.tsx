@@ -1,5 +1,5 @@
 import { Stack, useRouter } from 'expo-router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { AuthProvider } from '@/contexts/Auth'
 import { useAuth } from '@/hooks/useAuth'
@@ -16,6 +16,7 @@ const RootLayout = () => {
 const MainLayout = () => {
   const router = useRouter()
   const { userProfile, setUserProfile } = useAuth()
+  const userEmail = useRef('')
 
   useEffect(() => {
     const setCurrentUserProfile = async () => {
@@ -32,9 +33,18 @@ const MainLayout = () => {
   }, [setUserProfile])
 
   useEffect(() => {
+    if (
+      userProfile === undefined ||
+      (userProfile && userEmail.current === userProfile.email)
+    ) {
+      return
+    }
+
     if (userProfile) {
+      userEmail.current = userProfile.email
       router.replace('/home')
-    } else if (userProfile === null) {
+    } else if (!userProfile) {
+      userEmail.current = ''
       router.replace('/welcome')
     }
   }, [router, userProfile])

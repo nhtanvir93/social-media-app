@@ -5,18 +5,21 @@ import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 
 type Props = {
-  placeholder: string
+  placeholder?: string
   containerStyle?: ViewStyle
   icon?: ReactNode
 } & TextInputProps
 
-const Input = ({ containerStyle, icon, ...props }: Props) => {
+const Input = ({ containerStyle, icon, multiline, ...props }: Props) => {
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View
+      style={[styles.container, multiline && styles.multilineContainer, containerStyle]}
+    >
       {icon}
       <TextInput
-        style={styles.input}
+        style={[styles.input, multiline && styles.multilineInput]}
         placeholderTextColor={theme.colors.textLight}
+        multiline={multiline}
         {...props}
       />
     </View>
@@ -28,16 +31,25 @@ export default Input
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: heightPercentage(7.2),
-    justifyContent: 'flex-start',
+    minHeight: heightPercentage(7.2),
     alignItems: 'center',
     borderWidth: 0.4,
     borderColor: theme.colors.textLight,
     borderRadius: theme.radius.xl,
     paddingHorizontal: 18,
+    paddingVertical: 8,
     gap: 12,
+  },
+  multilineContainer: {
+    alignItems: 'flex-start',
   },
   input: {
     flex: 1,
+    fontSize: heightPercentage(1.8),
+    color: theme.colors.text,
+  },
+  multilineInput: {
+    minHeight: 70,
+    textAlignVertical: 'top',
   },
 })
