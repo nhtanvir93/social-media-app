@@ -23,7 +23,7 @@ const Profile = () => {
       <UserHeader />
       <View style={styles.container}>
         <View style={styles.avatarContainer}>
-          <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} />
+          <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} uri={userProfile?.image} />
           <View style={styles.shadowWrapper}>
             <Pressable
               onPress={() => router.push('/editProfile')}
