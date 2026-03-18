@@ -18,7 +18,7 @@ const Avatar = ({
   style?: ImageProps['style']
 }) => {
   return (
-    <View style={styles.container}>
+    <View>
       <Image
         source={getUserImageSrcUrl(uri)}
         style={[
@@ -34,10 +34,6 @@ const Avatar = ({
 export default Avatar
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   avatar: {
     borderColor: theme.colors.gray,
     borderWidth: 1,
