@@ -5,7 +5,15 @@ import Fontisto from '@expo/vector-icons/Fontisto'
 import Octicons from '@expo/vector-icons/Octicons'
 import { router } from 'expo-router'
 import React from 'react'
-import { Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 
 import Avatar from '@/components/Avatar'
 import Header from '@/components/Header'
@@ -23,7 +31,11 @@ const Profile = () => {
       <UserHeader />
       <View style={styles.container}>
         <View style={styles.avatarContainer}>
-          <Avatar size={heightPercentage(16)} rounded={theme.radius.xxl} uri={userProfile?.image} />
+          <Avatar
+            size={heightPercentage(16)}
+            rounded={theme.radius.xxl}
+            uri={userProfile?.image}
+          />
           <View style={styles.shadowWrapper}>
             <Pressable
               onPress={() => router.push('/editProfile')}
@@ -37,36 +49,38 @@ const Profile = () => {
           </View>
         </View>
         <Text style={styles.profileName}>{userProfile?.name}</Text>
-        <View style={styles.detailsContainer}>
-          <View style={styles.infoSection}>
-            {userProfile && userProfile.email && (
-              <View style={styles.infoContainer}>
-                <Fontisto name="email" size={24} color={theme.colors.primary} />
-                <Text style={styles.infoText}>{userProfile.email}</Text>
-              </View>
-            )}
-            {userProfile && userProfile.phoneNumber && (
-              <View style={styles.infoContainer}>
-                <Entypo name="mobile" size={24} color={theme.colors.primary} />
-                <Text style={styles.infoText}>{userProfile.phoneNumber}</Text>
-              </View>
-            )}
-            {userProfile && userProfile.bio && (
-              <View style={styles.infoContainer}>
-                <Octicons name="quote" size={24} color={theme.colors.primary} />
-                <Text style={styles.infoText}>{userProfile.bio}</Text>
-              </View>
-            )}
+        <ScrollView>
+          <View style={styles.detailsContainer}>
+            <View style={styles.infoSection}>
+              {userProfile && userProfile.email && (
+                <View style={styles.infoContainer}>
+                  <Fontisto name="email" size={24} color={theme.colors.primary} />
+                  <Text style={styles.infoText}>{userProfile.email}</Text>
+                </View>
+              )}
+              {userProfile && userProfile.phoneNumber && (
+                <View style={styles.infoContainer}>
+                  <Entypo name="mobile" size={24} color={theme.colors.primary} />
+                  <Text style={styles.infoText}>{userProfile.phoneNumber}</Text>
+                </View>
+              )}
+              {userProfile && userProfile.bio && (
+                <View style={styles.infoContainer}>
+                  <Octicons name="quote" size={24} color={theme.colors.primary} />
+                  <Text style={styles.infoText}>{userProfile.bio}</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.infoSection}>
+              {userProfile && userProfile.address && (
+                <View style={styles.infoContainer}>
+                  <Entypo name="address" size={24} color={theme.colors.primary} />
+                  <Text style={styles.infoText}>{userProfile.address}</Text>
+                </View>
+              )}
+            </View>
           </View>
-          <View style={styles.infoSection}>
-            {userProfile && userProfile.address && (
-              <View style={styles.infoContainer}>
-                <Entypo name="address" size={24} color={theme.colors.primary} />
-                <Text style={styles.infoText}>{userProfile.address}</Text>
-              </View>
-            )}
-          </View>
-        </View>
+        </ScrollView>
       </View>
     </ScreenWrapper>
   )

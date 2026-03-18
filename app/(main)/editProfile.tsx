@@ -59,18 +59,19 @@ const EditProfile = () => {
 
     let newProfileImage
 
+    setLoading(true)
+
     if (image) {
       const uploadResponse = await uploadFile(image)
 
       if (!uploadResponse.success) {
+        setLoading(false)
         Alert.alert('Profile', uploadResponse.message)
         return
       }
 
       newProfileImage = uploadResponse.publicFileUrl
     }
-
-    setLoading(true)
 
     const payload = newProfileImage
       ? { ...userProfileUpdate, image: newProfileImage }
