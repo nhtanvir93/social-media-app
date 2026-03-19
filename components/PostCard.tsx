@@ -1,9 +1,11 @@
 import Entypo from '@expo/vector-icons/Entypo'
+import Feather from '@expo/vector-icons/Feather'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Router } from 'expo-router'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
 import RenderHtml from 'react-native-render-html'
 
@@ -24,8 +26,6 @@ const baseStyle = {
 
 const PostCard = ({
   post,
-  currentUser,
-  router,
 }: {
   post: PostRow
   currentUser: UserProfileRow
@@ -122,8 +122,27 @@ const PostCard = ({
           style={styles.filePreview}
           useNativeControls
           resizeMode={ResizeMode.CONTAIN}
+          isLooping
         />
       )}
+      <View style={styles.actionContainer}>
+        <Pressable style={styles.actionInfo}>
+          <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
+          <Text style={styles.countText}>0</Text>
+        </Pressable>
+        <Pressable style={styles.actionInfo}>
+          <MaterialCommunityIcons
+            name="comment-text-outline"
+            size={20}
+            color={theme.colors.text}
+          />
+          <Text style={styles.countText}>0</Text>
+        </Pressable>
+        <Pressable style={styles.actionInfo}>
+          <Feather name="share" size={20} color={theme.colors.primaryDark} />
+          <Text style={styles.countText}>0</Text>
+        </Pressable>
+      </View>
     </View>
   )
 }
@@ -162,10 +181,21 @@ const styles = StyleSheet.create({
     color: theme.colors.textLight,
   },
   filePreview: {
-    flex: 1,
     borderRadius: theme.radius.lg,
-    height: heightPercentage(20),
-    borderWidth: 0.4,
-    borderColor: theme.colors.textLight,
+    height: heightPercentage(30),
+    width: '100%',
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  actionInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  countText: {
+    fontSize: 16,
+    color: theme.colors.textLight,
   },
 })
