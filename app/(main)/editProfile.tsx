@@ -34,7 +34,9 @@ const EditProfile = () => {
     phoneNumber: '',
     bio: '',
     address: '',
+    image: '',
   })
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null)
   const [loading, setLoading] = useState(false)
 
   const { userProfile, setUserProfile } = useAuth()
@@ -50,7 +52,7 @@ const EditProfile = () => {
       return
     }
 
-    const { name, phoneNumber, address, bio, image } = userProfileUpdate
+    const { name, phoneNumber, address, bio } = userProfileUpdate
 
     if (!name || !phoneNumber || !address || !bio) {
       Alert.alert('Profile', 'Pleass fill all the fields')
@@ -102,8 +104,7 @@ const EditProfile = () => {
     })
 
     if (!result.canceled) {
-      console.log(result.assets[0].uri)
-      setUserProfileUpdate({ ...userProfileUpdate, image: result.assets[0].uri })
+      setImage(result.assets[0])
     }
   }
 
@@ -121,7 +122,7 @@ const EditProfile = () => {
             <Avatar
               size={heightPercentage(16)}
               rounded={theme.radius.xxl}
-              uri={userProfileUpdate.image}
+              uri={image?.uri || userProfileUpdate.image}
             />
             <View style={styles.shadowWrapper}>
               <Pressable

@@ -1,4 +1,5 @@
 import { File } from 'expo-file-system'
+import { ImagePickerAsset } from 'expo-image-picker'
 
 import { supabase } from '@/lib/supabase'
 
@@ -6,45 +7,17 @@ export const getUserImageSrcUrl = (imagePath: string | null | undefined) => {
   return imagePath || require('../assets/images/default-user.png')
 }
 
-export const getFileFromUri = async (uri: string): Promise<Blob | null> => {
-  try {
-    const response = await fetch(uri)
-
-    if (!response.ok) {
-      console.error(`Failed to fetch ${uri}: ${response.status}`)
-      return null
-    }
-
-    const blob = await response.blob()
-
-    if (!blob || blob.size === 0) {
-      console.warn(`Empty file from URI: ${uri}`)
-      return null
-    }
-
-    return blob
-  } catch (error) {
-    console.error(`Error reading file from URI: ${uri}`, error)
-    return null
-  }
-}
-
 type ValidFileSizeResult = { success: true } | { success: false; message: string }
 
-export const isValidFileSize = (
-  blob: Blob,
-  customMaxFileSizeInMB?: number,
-): ValidFileSizeResult => {
+export const isValidFileSize = (file: ImagePickerAsset): ValidFileSizeResult => {
   const DEFAULT_MAX_FILE_SIZE = 10
 
   const maxFileSizeMB =
-    customMaxFileSizeInMB ||
-    Number(process.env.EXPO_PUBLIC_MAX_FILE_SIZE_IN_MB) ||
-    DEFAULT_MAX_FILE_SIZE
+    Number(process.env.EXPO_PUBLIC_MAX_FILE_SIZE_IN_MB) || DEFAULT_MAX_FILE_SIZE
 
   const MAX_FILE_SIZE = maxFileSizeMB * 1024 * 1024
 
-  if (blob.size > MAX_FILE_SIZE) {
+  if (file.fileSize && file.fileSize > MAX_FILE_SIZE) {
     return {
       success: false,
       message: `File size should not exceed ${maxFileSizeMB} MB`,
@@ -54,51 +27,39 @@ export const isValidFileSize = (
   return { success: true }
 }
 
-export const getFileType = (blob: Blob) => {
-  const mimeType = blob.type
-
-  if (mimeType.startsWith('image/')) return 'image'
-  if (mimeType.startsWith('video/')) return 'video'
-
-  return 'unknown'
-}
-
 type UploadResult =
   | { success: true; publicFileUrl: string }
   | { success: false; message: string }
 
-export const uploadFile = async (fileUri: string): Promise<UploadResult> => {
+export const uploadFile = async (file: ImagePickerAsset): Promise<UploadResult> => {
   try {
-    const blob = await getFileFromUri(fileUri)
-
-    if (!blob) {
+    if (!file.fileSize || !file.type || !file.uri || !file.mimeType) {
       return {
         success: false,
-        message: 'Failed to read file',
+        message: 'File uri, mime type, type or size is missing',
       }
     }
 
-    const sizeValidation = isValidFileSize(blob)
+    const sizeValidation = isValidFileSize(file)
     if (!sizeValidation.success) return sizeValidation
 
-    const EXTENSIONS = {
+    const EXTENSIONS: Record<'image' | 'video', string> = {
       image: '.png',
       video: '.mp4',
     }
 
-    const fileType = getFileType(blob)
-
-    if (!(fileType in EXTENSIONS) || fileType === 'unknown') {
+    if (!(file.type in EXTENSIONS)) {
       return {
         success: false,
         message: 'Unsupported file type',
       }
     }
 
-    const fileName = `${Date.now()}${EXTENSIONS[fileType]}`
+    const fileName = `${Date.now()}${EXTENSIONS[file.type as keyof typeof EXTENSIONS]}`
+
     const bucketId = process.env.EXPO_PUBLIC_BUCKET_ID || 'uploads'
 
-    const fileArrayBuffer = await getFileArrayBuffer(fileUri)
+    const fileArrayBuffer = await getFileArrayBuffer(file.uri)
 
     if (!fileArrayBuffer) {
       return {
@@ -108,12 +69,12 @@ export const uploadFile = async (fileUri: string): Promise<UploadResult> => {
     }
 
     console.log('Uploading to bucket:', bucketId)
-    console.log('File size:', blob.size, 'Type:', blob.type)
+    console.log('File size:', file.fileSize, 'Type:', file.type)
 
     const { data, error } = await supabase.storage
       .from(bucketId)
       .upload(fileName, fileArrayBuffer, {
-        contentType: blob.type || 'application/octet-stream',
+        contentType: file.mimeType || 'application/octet-stream',
         upsert: false,
       })
 
