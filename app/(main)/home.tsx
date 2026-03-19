@@ -1,5 +1,6 @@
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { useRouter } from 'expo-router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -11,7 +12,10 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 import { fetchPosts, PostRow } from '@/utils/databases/post'
+import { PostRow as PostRowWithoutUser } from '@/utils/databases/types/post.types'
+import { getUserProfile } from '@/utils/databases/userProfile'
 
 const LIMIT = 20
 
@@ -22,6 +26,31 @@ const Home = () => {
   const router = useRouter()
   const { userProfile } = useAuth()
   const { top } = useSafeAreaInsets()
+
+  const handlePostEvent = useCallback(
+    async (payload: RealtimePostgresChangesPayload<PostRowWithoutUser>) => {
+      const { eventType, new: newPost } = payload
+
+      if (!('userId' in newPost)) return
+
+      const author = await getUserProfile(newPost.userId)
+
+      if (!author) return
+
+      const newPostWithUser: PostRow = {
+        ...newPost,
+        user: author,
+      }
+
+      switch (eventType) {
+        case 'INSERT':
+          offset++
+          setPosts((prev) => [newPostWithUser, ...prev])
+          break
+      }
+    },
+    [offset],
+  )
 
   const updatePosts = useCallback(async () => {
     const result = await fetchPosts(offset, LIMIT)
@@ -39,7 +68,22 @@ const Home = () => {
 
   useEffect(() => {
     updatePosts()
-  }, [updatePosts])
+
+    const postChannel = supabase
+      .channel('posts')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'posts' },
+        handlePostEvent,
+      )
+      .subscribe()
+
+    return () => {
+      ;(async () => {
+        await supabase.removeChannel(postChannel)
+      })()
+    }
+  }, [updatePosts, handlePostEvent])
 
   if (!userProfile) {
     return null

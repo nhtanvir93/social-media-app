@@ -41,6 +41,14 @@ export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
   return data
 }
 
+export const getUserProfile = async (id: string): Promise<UserProfile | null> => {
+  const { data, error } = await supabase.from('users').select('*').eq('id', id).single()
+
+  if (error) return null
+
+  return data
+}
+
 export const updateUserProfile = async (
   updates: UserProfileUpdate,
   userId: string,
