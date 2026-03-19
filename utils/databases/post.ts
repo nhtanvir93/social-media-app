@@ -23,7 +23,7 @@ export const createOrUpdatePost = async (payload: PostPayload) => {
 type getAllPostsResult =
   | {
       success: true
-      data: PostRow[] | null
+      data: PostRow[]
     }
   | {
       success: false
@@ -56,6 +56,6 @@ export const fetchPosts = async (offset = 0, limit = 20): Promise<getAllPostsRes
 
   return {
     success: true,
-    data,
+    data: data === null ? [] : data,
   }
 }

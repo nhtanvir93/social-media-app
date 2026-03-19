@@ -1,11 +1,12 @@
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
-import React, { useEffect, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import Avatar from '@/components/Avatar'
+import PostCard from '@/components/PostCard'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
@@ -16,25 +17,33 @@ const LIMIT = 20
 
 const Home = () => {
   const [posts, setPosts] = useState<PostRow[]>([])
-  const [offset, setOffset] = useState(0)
+  let { current: offset } = useRef(0)
 
   const router = useRouter()
   const { userProfile } = useAuth()
   const { top } = useSafeAreaInsets()
 
-  const updatePosts = async (currentOffset: number) => {
-    const result = await fetchPosts(currentOffset, LIMIT)
+  const updatePosts = useCallback(async () => {
+    const result = await fetchPosts(offset, LIMIT)
 
-    if (!result.success) {
+    if (!result.success || !result.data) {
       return
     }
-    console.log(result.data)
-    setPosts((prev) => (result.data !== null ? [...prev, ...result.data] : prev))
-  }
+
+    if (result.data !== null) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      offset += result.data.length
+      setPosts((prev) => [...prev, ...result.data])
+    }
+  }, [])
 
   useEffect(() => {
-    updatePosts(offset)
-  }, [offset])
+    updatePosts()
+  }, [updatePosts])
+
+  if (!userProfile) {
+    return null
+  }
 
   return (
     <ScreenWrapper withHeader={false}>
@@ -60,6 +69,17 @@ const Home = () => {
             <Avatar uri={userProfile?.image} rounded={theme.radius.xxl} />
           </Pressable>
         </View>
+      </View>
+      <View style={{ marginTop: heightPercentage(8.5) }}>
+        <FlatList
+          data={posts}
+          keyExtractor={(post) => post.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listStyle}
+          renderItem={({ item: post }) => (
+            <PostCard post={post} currentUser={userProfile} router={router} />
+          )}
+        />
       </View>
     </ScreenWrapper>
   )
@@ -92,5 +112,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 16,
+  },
+  listStyle: {
+    gap: 10,
   },
 })
