@@ -64,7 +64,7 @@ const EditProfile = () => {
     setLoading(true)
 
     if (image) {
-      const uploadResponse = await uploadFile(image)
+      const uploadResponse = await uploadFile(image, '/profiles')
 
       if (!uploadResponse.success) {
         setLoading(false)

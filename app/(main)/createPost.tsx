@@ -49,7 +49,8 @@ const CreatePost = () => {
       setLoading(true)
 
       if (file) {
-        const uploadResponse = await uploadFile(file)
+        const folder = '/post-' + file.type + 's'
+        const uploadResponse = await uploadFile(file, folder)
 
         if (!uploadResponse.success) {
           setLoading(false)

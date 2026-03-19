@@ -31,7 +31,10 @@ type UploadResult =
   | { success: true; publicFileUrl: string }
   | { success: false; message: string }
 
-export const uploadFile = async (file: ImagePickerAsset): Promise<UploadResult> => {
+export const uploadFile = async (
+  file: ImagePickerAsset,
+  folder?: string,
+): Promise<UploadResult> => {
   try {
     if (!file.fileSize || !file.type || !file.uri || !file.mimeType) {
       return {
@@ -55,7 +58,7 @@ export const uploadFile = async (file: ImagePickerAsset): Promise<UploadResult> 
       }
     }
 
-    const fileName = `${Date.now()}${EXTENSIONS[file.type as keyof typeof EXTENSIONS]}`
+    const fileName = `${folder}/${Date.now()}${EXTENSIONS[file.type as keyof typeof EXTENSIONS]}`
 
     const bucketId = process.env.EXPO_PUBLIC_BUCKET_ID || 'uploads'
 
