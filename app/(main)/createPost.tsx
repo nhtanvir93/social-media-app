@@ -62,7 +62,7 @@ const CreatePost = () => {
       }
 
       await createOrUpdatePost({
-        user_id: userProfile.id,
+        userId: userProfile.id,
         body: bodyRef.current,
         file: newPostFile,
       })

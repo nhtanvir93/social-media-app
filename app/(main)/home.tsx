@@ -1,7 +1,7 @@
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -10,11 +10,31 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
+import { fetchPosts, PostRow } from '@/utils/databases/post'
+
+const LIMIT = 20
 
 const Home = () => {
+  const [posts, setPosts] = useState<PostRow[]>([])
+  const [offset, setOffset] = useState(0)
+
   const router = useRouter()
   const { userProfile } = useAuth()
   const { top } = useSafeAreaInsets()
+
+  const updatePosts = async (currentOffset: number) => {
+    const result = await fetchPosts(currentOffset, LIMIT)
+
+    if (!result.success) {
+      return
+    }
+    console.log(result.data)
+    setPosts((prev) => (result.data !== null ? [...prev, ...result.data] : prev))
+  }
+
+  useEffect(() => {
+    updatePosts(offset)
+  }, [offset])
 
   return (
     <ScreenWrapper withHeader={false}>

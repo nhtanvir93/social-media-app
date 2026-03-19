@@ -14,7 +14,14 @@ export type Database = {
         Row: PostRow
         Insert: PostPayload
         Update: PostPayload
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'posts_userId_fkey'
+            columns: ['userId']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
