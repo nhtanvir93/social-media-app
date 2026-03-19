@@ -4,6 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import * as ImagePicker from 'expo-image-picker'
+import { useRouter } from 'expo-router'
 import React, { useRef, useState } from 'react'
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { RichEditor } from 'react-native-pell-rich-editor'
@@ -17,6 +18,8 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
+import { createOrUpdatePost } from '@/utils/databases/post'
+import { uploadFile } from '@/utils/fileUtil'
 
 const CreatePost = () => {
   const [loading, setLoading] = useState(false)
@@ -27,14 +30,50 @@ const CreatePost = () => {
   const bodyRef = useRef('')
 
   const { userProfile } = useAuth()
+  const router = useRouter()
 
-  const handleSubmit = () => {
-    if (!bodyRef.current || !file) {
+  const handleSubmit = async () => {
+    if (!userProfile) {
+      Alert.alert('Create Post', 'No logged in found to create the post')
+      return
+    }
+
+    if (!bodyRef.current && !file) {
       Alert.alert('Create Post', 'Please choose a media or add post body')
       return
     }
 
-    setLoading(true)
+    try {
+      let newPostFile = ''
+
+      setLoading(true)
+
+      if (file) {
+        const uploadResponse = await uploadFile(file)
+
+        if (!uploadResponse.success) {
+          setLoading(false)
+          Alert.alert('Create Post', uploadResponse.message)
+          return
+        }
+
+        newPostFile = uploadResponse.publicFileUrl
+      }
+
+      await createOrUpdatePost({
+        user_id: userProfile.id,
+        body: bodyRef.current,
+        file: newPostFile,
+      })
+
+      router.back()
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        Alert.alert('Create Post', 'Failed to create the post')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const pickFile = async (isImage: boolean) => {
