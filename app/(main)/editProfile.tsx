@@ -24,7 +24,7 @@ import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { Database } from '@/utils/databases/types/database.types'
 import { updateUserProfile } from '@/utils/databases/userProfile'
-import { uploadFile } from '@/utils/imageUtil'
+import { uploadFile } from '@/utils/fileUtil'
 
 type UserProfileUpdate = Database['public']['Tables']['users']['Update']
 

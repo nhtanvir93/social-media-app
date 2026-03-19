@@ -71,21 +71,20 @@ export default RichTextEditor
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     minHeight: 285,
   },
   toolbar: {
     borderTopLeftRadius: theme.radius.lg,
     borderTopRightRadius: theme.radius.lg,
-    borderColor: theme.colors.gray,
-    borderWidth: 1,
+    borderColor: theme.colors.textLight,
+    borderWidth: 0.4,
   },
   editor: {
     minHeight: 240,
     flex: 1,
-    borderWidth: 1,
+    borderWidth: 0.4,
     borderTopWidth: 0,
-    borderColor: theme.colors.gray,
+    borderColor: theme.colors.textLight,
     borderBottomLeftRadius: theme.radius.lg,
     borderBottomRightRadius: theme.radius.lg,
     padding: 5,

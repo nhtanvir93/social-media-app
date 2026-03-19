@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
-import { getUserImageSrcUrl } from '@/utils/imageUtil'
+import { getUserImageSrcUrl } from '@/utils/fileUtil'
 
 const Avatar = ({
   uri,
