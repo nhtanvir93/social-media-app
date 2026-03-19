@@ -1,3 +1,4 @@
+import { PostPayload, PostRow } from './post.types'
 import { UserProfileInsert, UserProfileRow, UserProfileUpdate } from './userProfile.types'
 
 export type Database = {
@@ -7,6 +8,12 @@ export type Database = {
         Row: UserProfileRow
         Insert: UserProfileInsert
         Update: UserProfileUpdate
+        Relationships: []
+      }
+      posts: {
+        Row: PostRow
+        Insert: PostPayload
+        Update: PostPayload
         Relationships: []
       }
     }
