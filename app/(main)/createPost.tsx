@@ -123,7 +123,10 @@ const CreatePost = () => {
             <Text style={styles.publisherTag}>Public</Text>
           </View>
         </View>
-        <ScrollView contentContainerStyle={styles.formContainer}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.formContainer}
+        >
           <RichTextEditor
             editorRef={editorRef}
             onChange={(html) => (bodyRef.current = html)}

@@ -49,7 +49,7 @@ const Profile = () => {
           </View>
         </View>
         <Text style={styles.profileName}>{userProfile?.name}</Text>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.detailsContainer}>
             <View style={styles.infoSection}>
               {userProfile && userProfile.email && (

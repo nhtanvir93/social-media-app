@@ -117,7 +117,7 @@ const EditProfile = () => {
         <View>
           <Header title="Edit Profile" />
         </View>
-        <ScrollView style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
           <View style={styles.avatarContainer}>
             <Avatar
               size={heightPercentage(16)}
