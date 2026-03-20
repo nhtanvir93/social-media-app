@@ -7,6 +7,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import Avatar from '@/components/Avatar'
+import Loading from '@/components/Loading'
 import PostCard from '@/components/PostCard'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
@@ -114,15 +115,30 @@ const Home = () => {
           </Pressable>
         </View>
       </View>
-      <View style={{ marginTop: heightPercentage(8.5) }}>
+      <View style={[styles.contentContainer, { marginTop: heightPercentage(8.5) }]}>
         <FlatList
           data={posts}
           keyExtractor={(post) => post.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listStyle}
+          contentContainerStyle={[
+            styles.listStyle,
+            posts.length === 0 && styles.emptyList,
+          ]}
           renderItem={({ item: post }) => (
             <PostCard post={post} currentUser={userProfile} router={router} />
           )}
+          ListEmptyComponent={
+            <View style={styles.centerLoader}>
+              <Loading />
+            </View>
+          }
+          ListFooterComponent={
+            posts.length > 0 ? (
+              <View style={styles.regularLoader}>
+                <Loading />
+              </View>
+            ) : null
+          }
         />
       </View>
     </ScreenWrapper>
@@ -157,7 +173,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
+  contentContainer: {
+    flex: 1,
+  },
   listStyle: {
     gap: 10,
+  },
+  emptyList: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  centerLoader: {
+    alignItems: 'center',
+  },
+  regularLoader: {
+    marginTop: 20,
+    alignItems: 'center',
   },
 })
