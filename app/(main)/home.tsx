@@ -22,7 +22,9 @@ const LIMIT = 20
 
 const Home = () => {
   const [posts, setPosts] = useState<PostRow[]>([])
-  let { current: offset } = useRef(0)
+  const [hasMorePosts, setHasMorePosts] = useState(true)
+
+  const offsetRef = useRef(0)
 
   const router = useRouter()
   const { userProfile } = useAuth()
@@ -45,31 +47,33 @@ const Home = () => {
 
       switch (eventType) {
         case 'INSERT':
-          offset++
+          offsetRef.current++
           setPosts((prev) => [newPostWithUser, ...prev])
           break
       }
     },
-    [offset],
+    [],
   )
 
   const updatePosts = useCallback(async () => {
-    const result = await fetchPosts(offset, LIMIT)
+    const result = await fetchPosts(offsetRef.current, LIMIT)
 
     if (!result.success || !result.data) {
+      setHasMorePosts(false)
       return
     }
 
     if (result.data !== null) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      offset += result.data.length
+      offsetRef.current += result.data.length
       setPosts((prev) => [...prev, ...result.data])
+
+      if (result.data.length < LIMIT) {
+        setHasMorePosts(false)
+      }
     }
   }, [])
 
   useEffect(() => {
-    updatePosts()
-
     const postChannel = supabase
       .channel('posts')
       .on(
@@ -84,7 +88,7 @@ const Home = () => {
         await supabase.removeChannel(postChannel)
       })()
     }
-  }, [updatePosts, handlePostEvent])
+  }, [handlePostEvent])
 
   if (!userProfile) {
     return null
@@ -127,17 +131,18 @@ const Home = () => {
           renderItem={({ item: post }) => (
             <PostCard post={post} currentUser={userProfile} router={router} />
           )}
-          ListEmptyComponent={
-            <View style={styles.centerLoader}>
-              <Loading />
-            </View>
-          }
+          onEndReached={() => hasMorePosts && updatePosts()}
+          onEndReachedThreshold={0}
           ListFooterComponent={
-            posts.length > 0 ? (
-              <View style={styles.regularLoader}>
+            hasMorePosts ? (
+              <View style={[hasMorePosts ? styles.regularLoader : styles.centerLoader]}>
                 <Loading />
               </View>
-            ) : null
+            ) : (
+              <View style={styles.noPostMsgContainer}>
+                <Text style={styles.noPostMsg}>No more posts</Text>
+              </View>
+            )
           }
         />
       </View>
@@ -189,5 +194,13 @@ const styles = StyleSheet.create({
   regularLoader: {
     marginTop: 20,
     alignItems: 'center',
+  },
+  noPostMsgContainer: {
+    marginVertical: 15,
+  },
+  noPostMsg: {
+    color: theme.colors.text,
+    fontSize: heightPercentage(2),
+    textAlign: 'center',
   },
 })
