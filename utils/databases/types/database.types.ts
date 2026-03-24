@@ -16,21 +16,21 @@ export type Database = {
     Tables: {
       comments: {
         Row: {
-          created_at: string | null
+          createdAt: string | null
           id: string
           postId: string
           text: string
           userId: string
         }
         Insert: {
-          created_at?: string | null
+          createdAt?: string | null
           id?: string
           postId: string
           text: string
           userId: string
         }
         Update: {
-          created_at?: string | null
+          createdAt?: string | null
           id?: string
           postId?: string
           text?: string
@@ -55,7 +55,7 @@ export type Database = {
       }
       notifications: {
         Row: {
-          created_at: string | null
+          createdAt: string | null
           data: Json | null
           id: string
           receiverId: string
@@ -63,7 +63,7 @@ export type Database = {
           title: string
         }
         Insert: {
-          created_at?: string | null
+          createdAt?: string | null
           data?: Json | null
           id?: string
           receiverId: string
@@ -71,7 +71,7 @@ export type Database = {
           title: string
         }
         Update: {
-          created_at?: string | null
+          createdAt?: string | null
           data?: Json | null
           id?: string
           receiverId?: string
@@ -167,7 +167,7 @@ export type Database = {
         Row: {
           address: string | null
           bio: string | null
-          created_at: string | null
+          createdAt: string | null
           email: string | null
           id: string
           image: string | null
@@ -177,7 +177,7 @@ export type Database = {
         Insert: {
           address?: string | null
           bio?: string | null
-          created_at?: string | null
+          createdAt?: string | null
           email?: string | null
           id: string
           image?: string | null
@@ -187,7 +187,7 @@ export type Database = {
         Update: {
           address?: string | null
           bio?: string | null
-          created_at?: string | null
+          createdAt?: string | null
           email?: string | null
           id?: string
           image?: string | null

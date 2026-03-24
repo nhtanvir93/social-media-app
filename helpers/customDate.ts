@@ -3,7 +3,11 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
-export const formatPostDate = (date: string) => {
+export const formatPostDate = (date: string | null) => {
+  if (date === null) {
+    return ''
+  }
+
   const now = dayjs()
   const postDate = dayjs(date)
 

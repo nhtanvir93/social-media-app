@@ -15,8 +15,10 @@ import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { fetchPosts, PostRow } from '@/utils/databases/post'
-import { PostRow as PostRowWithoutUser } from '@/utils/databases/types/post.types'
+import { Database } from '@/utils/databases/types/database.types'
 import { getUserProfile } from '@/utils/databases/userProfile'
+
+type PostRowWithoutUser = Database['public']['Tables']['posts']['Row']
 
 const LIMIT = 20
 
@@ -56,7 +58,11 @@ const Home = () => {
   )
 
   const updatePosts = useCallback(async () => {
-    const result = await fetchPosts(offsetRef.current, LIMIT)
+    if (!userProfile) {
+      return
+    }
+
+    const result = await fetchPosts(userProfile.id, offsetRef.current, LIMIT)
 
     if (!result.success || !result.data) {
       setHasMorePosts(false)
@@ -64,6 +70,7 @@ const Home = () => {
     }
 
     if (result.data !== null) {
+      console.log(result.data)
       offsetRef.current += result.data.length
       setPosts((prev) => [...prev, ...result.data])
 
@@ -71,7 +78,7 @@ const Home = () => {
         setHasMorePosts(false)
       }
     }
-  }, [])
+  }, [userProfile])
 
   useEffect(() => {
     const postChannel = supabase

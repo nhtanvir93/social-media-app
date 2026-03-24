@@ -11,16 +11,18 @@ import { useWindowDimensions } from 'react-native'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
-import { PostRow } from '@/utils/databases/post'
-import { UserProfileRow } from '@/utils/databases/types/userProfile.types'
+import { PostRowWithExtras } from '@/utils/databases/post'
+import { Database } from '@/utils/databases/types/database.types'
 
 import Avatar from './Avatar'
 import PostDetailsViewer from './PostDetailsViewer'
 
+type UserProfileRow = Database['public']['Tables']['users']['Row']
+
 const PostCard = ({
   post,
 }: {
-  post: PostRow
+  post: PostRowWithExtras
   currentUser: UserProfileRow
   router: Router
 }) => {
@@ -54,7 +56,7 @@ const PostCard = ({
       <View style={styles.actionContainer}>
         <Pressable style={styles.actionInfo}>
           <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
-          <Text style={styles.countText}>0</Text>
+          <Text style={styles.countText}>{post.likesCount}</Text>
         </Pressable>
         <Pressable style={styles.actionInfo}>
           <MaterialCommunityIcons
@@ -65,8 +67,7 @@ const PostCard = ({
           <Text style={styles.countText}>0</Text>
         </Pressable>
         <Pressable style={styles.actionInfo}>
-          <Feather name="share" size={20} color={theme.colors.primaryDark} />
-          <Text style={styles.countText}>0</Text>
+          <Feather name="share" size={18} color={theme.colors.primaryDark} />
         </Pressable>
       </View>
     </View>
