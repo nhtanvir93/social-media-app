@@ -70,7 +70,6 @@ const Home = () => {
     }
 
     if (result.data !== null) {
-      console.log(result.data)
       offsetRef.current += result.data.length
       setPosts((prev) => [...prev, ...result.data])
 

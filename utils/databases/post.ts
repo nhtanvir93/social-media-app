@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { Database } from './types/database.types'
 
 type PostPayload = Database['public']['Tables']['posts']['Insert']
+type PostLikeInsert = Database['public']['Tables']['postLikes']['Insert']
 
 type UserRow = Database['public']['Tables']['users']['Row']
 export type PostRow = Pick<
@@ -18,6 +19,30 @@ export const createOrUpdatePost = async (payload: PostPayload) => {
   if (error) throw error
 
   return data
+}
+
+export const createPostLike = async (postLikeInsert: PostLikeInsert) => {
+  const { data, error } = await supabase
+    .from('postLikes')
+    .upsert(postLikeInsert)
+    .select()
+    .single()
+
+  if (error) throw error
+
+  return data
+}
+
+export const deletePostLike = async (postId: string, userId: string) => {
+  const { error } = await supabase
+    .from('postLikes')
+    .delete()
+    .eq('postId', postId)
+    .eq('userId', userId)
+
+  if (error) throw error
+
+  return { success: true }
 }
 
 type getAllPostsResult =

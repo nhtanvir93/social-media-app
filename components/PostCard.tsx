@@ -1,17 +1,18 @@
 import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { PostgrestError } from '@supabase/supabase-js'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Router } from 'expo-router'
-import React from 'react'
+import React, { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
 
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
-import { PostRowWithExtras } from '@/utils/databases/post'
+import { createPostLike, deletePostLike, PostRowWithExtras } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
 
 import Avatar from './Avatar'
@@ -21,12 +22,47 @@ type UserProfileRow = Database['public']['Tables']['users']['Row']
 
 const PostCard = ({
   post,
+  currentUser,
 }: {
   post: PostRowWithExtras
   currentUser: UserProfileRow
   router: Router
 }) => {
   const { width } = useWindowDimensions()
+
+  const [likedInfo, setLikeInfo] = useState({
+    isLiked: post.isLiked,
+    likesCount: post.likesCount,
+  })
+
+  const handleToggleLike = async () => {
+    const { isLiked: oldIsLiked, likesCount: oldLikesCount } = likedInfo
+
+    setLikeInfo((prev) => ({
+      isLiked: !prev.isLiked,
+      likesCount: prev.isLiked ? prev.likesCount - 1 : prev.likesCount + 1,
+    }))
+
+    try {
+      if (oldIsLiked) {
+        await deletePostLike(post.id, currentUser.id)
+      } else {
+        await createPostLike({
+          postId: post.id,
+          userId: currentUser.id,
+        })
+      }
+    } catch (err: unknown) {
+      if (err instanceof PostgrestError) {
+        console.log('Failed to toggle like', err)
+      }
+
+      setLikeInfo({
+        isLiked: oldIsLiked,
+        likesCount: oldLikesCount,
+      })
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -54,9 +90,14 @@ const PostCard = ({
         />
       )}
       <View style={styles.actionContainer}>
-        <Pressable style={styles.actionInfo}>
-          <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
-          <Text style={styles.countText}>{post.likesCount}</Text>
+        <Pressable style={styles.actionInfo} onPress={handleToggleLike}>
+          {likedInfo.isLiked && (
+            <Entypo name="heart" size={20} color={theme.colors.rose} />
+          )}
+          {!likedInfo.isLiked && (
+            <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
+          )}
+          <Text style={styles.countText}>{likedInfo.likesCount}</Text>
         </Pressable>
         <Pressable style={styles.actionInfo}>
           <MaterialCommunityIcons
