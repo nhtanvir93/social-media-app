@@ -127,7 +127,12 @@ export const downloadFile = async (remoteUrl: string) => {
       await destination.create({ intermediates: true })
     }
 
-    const { uri: localUri } = await File.downloadFileAsync(remoteUrl, destination)
+    const fileName = remoteUrl.split('/').pop()?.split('?')[0] || `file_${Date.now()}`
+    const file = new File(destination, fileName)
+
+    if (file.exists) await file.delete()
+
+    const { uri: localUri } = await File.downloadFileAsync(remoteUrl, file)
     return localUri
   } catch (error: unknown) {
     console.log('Error on downloading sharing file', error)

@@ -8,12 +8,14 @@ import { Router } from 'expo-router'
 import React, { startTransition, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
+import Share from 'react-native-share'
 
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
 import { createPostLike, deletePostLike, PostRowWithExtras } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
+import { downloadFile } from '@/utils/fileUtil'
 
 import Avatar from './Avatar'
 import PostDetailsViewer from './PostDetailsViewer'
@@ -30,7 +32,7 @@ const PostCard = ({
   router: Router
 }) => {
   const { width } = useWindowDimensions()
-  console.log(router)
+  // console.log(router)
 
   const [likeInfo, setLikeInfo] = useState({
     isLiked: post.isLiked,
@@ -68,6 +70,22 @@ const PostCard = ({
           likesCount: oldLikesCount,
         })
       })
+    }
+  }
+
+  const handleShare = async () => {
+    if (post.file) {
+      const localUri = await downloadFile(post.file)
+
+      const shareOptions = {
+        title: 'Post Sharing',
+        message: 'Here is some text I want to share',
+        url: localUri,
+      }
+
+      Share.open(shareOptions)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err))
     }
   }
 
@@ -119,7 +137,7 @@ const PostCard = ({
           <Text style={styles.countText}>{post.commentsCount}</Text>
         </Pressable>
 
-        <Pressable style={styles.actionInfo}>
+        <Pressable style={styles.actionInfo} onPress={handleShare}>
           <Feather name="share" size={18} color={theme.colors.primaryDark} />
         </Pressable>
       </View>
