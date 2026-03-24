@@ -4,8 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { PostgrestError } from '@supabase/supabase-js'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { Router } from 'expo-router'
-import React, { useState } from 'react'
+import React, { startTransition, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
 
@@ -26,40 +25,44 @@ const PostCard = ({
 }: {
   post: PostRowWithExtras
   currentUser: UserProfileRow
-  router: Router
 }) => {
   const { width } = useWindowDimensions()
 
-  const [likedInfo, setLikeInfo] = useState({
+  const [likeInfo, setLikeInfo] = useState({
     isLiked: post.isLiked,
     likesCount: post.likesCount,
   })
 
   const handleToggleLike = async () => {
-    const { isLiked: oldIsLiked, likesCount: oldLikesCount } = likedInfo
+    const currentlyLiked = likeInfo.isLiked
+    const oldLikesCount = likeInfo.likesCount
 
-    setLikeInfo((prev) => ({
-      isLiked: !prev.isLiked,
-      likesCount: prev.isLiked ? prev.likesCount - 1 : prev.likesCount + 1,
-    }))
+    startTransition(() => {
+      setLikeInfo({
+        isLiked: !currentlyLiked,
+        likesCount: currentlyLiked ? oldLikesCount - 1 : oldLikesCount + 1,
+      })
+    })
 
     try {
-      if (oldIsLiked) {
+      if (currentlyLiked) {
         await deletePostLike(post.id, currentUser.id)
       } else {
-        await createPostLike({
-          postId: post.id,
-          userId: currentUser.id,
-        })
+        await createPostLike({ postId: post.id, userId: currentUser.id })
       }
     } catch (err: unknown) {
-      if (err instanceof PostgrestError) {
-        console.log('Failed to toggle like', err)
+      if (err instanceof PostgrestError && err.code === '23505') {
+        console.warn('Like already exists, ignoring duplicate')
+        return
       }
 
-      setLikeInfo({
-        isLiked: oldIsLiked,
-        likesCount: oldLikesCount,
+      console.error('Failed to toggle like', err)
+
+      startTransition(() => {
+        setLikeInfo({
+          isLiked: currentlyLiked,
+          likesCount: oldLikesCount,
+        })
       })
     }
   }
@@ -76,10 +79,13 @@ const PostCard = ({
         </View>
         <Entypo name="dots-three-horizontal" size={16} color={theme.colors.textLight} />
       </View>
+
       {post.body && <PostDetailsViewer containerWidth={width} html={post.body} />}
+
       {post.file?.includes('image') && (
         <Image source={post.file} contentFit="cover" style={styles.filePreview} />
       )}
+
       {post.file?.includes('video') && (
         <Video
           source={{ uri: post.file }}
@@ -89,16 +95,17 @@ const PostCard = ({
           isLooping
         />
       )}
+
       <View style={styles.actionContainer}>
         <Pressable style={styles.actionInfo} onPress={handleToggleLike}>
-          {likedInfo.isLiked && (
+          {likeInfo.isLiked ? (
             <Entypo name="heart" size={20} color={theme.colors.rose} />
-          )}
-          {!likedInfo.isLiked && (
+          ) : (
             <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
           )}
-          <Text style={styles.countText}>{likedInfo.likesCount}</Text>
+          <Text style={styles.countText}>{likeInfo.likesCount}</Text>
         </Pressable>
+
         <Pressable style={styles.actionInfo}>
           <MaterialCommunityIcons
             name="comment-text-outline"
@@ -107,6 +114,7 @@ const PostCard = ({
           />
           <Text style={styles.countText}>{post.commentsCount}</Text>
         </Pressable>
+
         <Pressable style={styles.actionInfo}>
           <Feather name="share" size={18} color={theme.colors.primaryDark} />
         </Pressable>
