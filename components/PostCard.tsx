@@ -64,7 +64,7 @@ const PostCard = ({
             size={20}
             color={theme.colors.text}
           />
-          <Text style={styles.countText}>0</Text>
+          <Text style={styles.countText}>{post.commentsCount}</Text>
         </Pressable>
         <Pressable style={styles.actionInfo}>
           <Feather name="share" size={18} color={theme.colors.primaryDark} />
