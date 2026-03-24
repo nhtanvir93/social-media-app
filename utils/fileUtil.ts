@@ -1,4 +1,4 @@
-import { File } from 'expo-file-system'
+import { Directory, File, Paths } from 'expo-file-system'
 import { ImagePickerAsset } from 'expo-image-picker'
 
 import { supabase } from '@/lib/supabase'
@@ -116,5 +116,35 @@ export const getFileArrayBuffer = async (fileUri: string) => {
   } catch (error) {
     console.log('Error reading file:', error)
     return null
+  }
+}
+
+export const downloadFile = async (remoteUrl: string) => {
+  const destination = new Directory(Paths.cache, 'sharings')
+
+  try {
+    if (!destination.exists) {
+      await destination.create({ intermediates: true })
+    }
+
+    const { uri: localUri } = await File.downloadFileAsync(remoteUrl, destination)
+    return localUri
+  } catch (error: unknown) {
+    console.log('Error on downloading sharing file', error)
+    return null
+  }
+}
+
+export const deleteFile = async (fileUri?: string | null) => {
+  if (!fileUri) return
+
+  try {
+    const file = new File(fileUri)
+
+    if (file.exists) {
+      await file.delete()
+    }
+  } catch (error) {
+    console.warn('File cleanup failed:', error)
   }
 }
