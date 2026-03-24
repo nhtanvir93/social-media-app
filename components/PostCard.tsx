@@ -84,13 +84,12 @@ const PostCard = ({
 
         if (!localUri) {
           Alert.alert('Share File', 'Failed to share the file')
-          return
-        }
+        } else if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(localUri, {
+            dialogTitle: 'Share file',
+          })
 
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(localUri, { dialogTitle: 'Share file' })
           await deleteFile(localUri)
-          return
         } else {
           console.warn('File sharing is not available on this device')
         }
