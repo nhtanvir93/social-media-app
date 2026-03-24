@@ -79,10 +79,8 @@ const PostCard = ({
     try {
       setLoading(true)
 
-      let localUri: string | null
-
       if (post.file) {
-        localUri = await downloadFile(post.file)
+        const localUri = await downloadFile(post.file)
 
         if (!localUri) {
           Alert.alert('Share File', 'Failed to share the file')
