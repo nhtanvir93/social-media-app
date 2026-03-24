@@ -5,19 +5,20 @@ import { PostgrestError } from '@supabase/supabase-js'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Router } from 'expo-router'
+import * as Sharing from 'expo-sharing'
 import React, { startTransition, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
-import Share from 'react-native-share'
 
 import { theme } from '@/constants/theme'
-import { heightPercentage } from '@/helpers/common'
+import { heightPercentage, stripHtml } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
 import { createPostLike, deletePostLike, PostRowWithExtras } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
-import { downloadFile } from '@/utils/fileUtil'
+import { deleteFile, downloadFile } from '@/utils/fileUtil'
 
 import Avatar from './Avatar'
+import Loading from './Loading'
 import PostDetailsViewer from './PostDetailsViewer'
 
 type UserProfileRow = Database['public']['Tables']['users']['Row']
@@ -38,6 +39,7 @@ const PostCard = ({
     isLiked: post.isLiked,
     likesCount: post.likesCount,
   })
+  const [loading, setLoading] = useState(false)
 
   const handleToggleLike = async () => {
     const currentlyLiked = likeInfo.isLiked
@@ -74,18 +76,37 @@ const PostCard = ({
   }
 
   const handleShare = async () => {
-    if (post.file) {
-      const localUri = await downloadFile(post.file)
+    try {
+      setLoading(true)
 
-      const shareOptions = {
-        title: 'Post Sharing',
-        message: 'Here is some text I want to share',
-        url: localUri,
+      let localUri: string | null
+
+      if (post.file) {
+        localUri = await downloadFile(post.file)
+
+        if (!localUri) {
+          Alert.alert('Share File', 'Failed to share the file')
+          return
+        }
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(localUri, { dialogTitle: 'Share file' })
+          await deleteFile(localUri)
+          return
+        } else {
+          console.warn('File sharing is not available on this device')
+        }
       }
 
-      Share.open(shareOptions)
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err))
+      if (post.body) {
+        await Share.share({
+          message: stripHtml(post.body),
+        })
+      }
+    } catch (err) {
+      console.error('Error sharing content', err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -137,9 +158,15 @@ const PostCard = ({
           <Text style={styles.countText}>{post.commentsCount}</Text>
         </Pressable>
 
-        <Pressable style={styles.actionInfo} onPress={handleShare}>
-          <Feather name="share" size={18} color={theme.colors.primaryDark} />
-        </Pressable>
+        <View>
+          {loading ? (
+            <Loading size="small" />
+          ) : (
+            <Pressable style={styles.actionInfo} onPress={handleShare}>
+              <Feather name="share" size={18} color={theme.colors.primaryDark} />
+            </Pressable>
+          )}
+        </View>
       </View>
     </View>
   )

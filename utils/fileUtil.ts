@@ -147,6 +147,7 @@ export const deleteFile = async (fileUri?: string | null) => {
     const file = new File(fileUri)
 
     if (file.exists) {
+      console.log('Sharing file removed', fileUri)
       await file.delete()
     }
   } catch (error) {
