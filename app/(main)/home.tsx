@@ -125,7 +125,7 @@ const Home = () => {
           </Pressable>
         </View>
       </View>
-      <View style={[styles.contentContainer, { marginTop: heightPercentage(8.5) }]}>
+      <View style={[styles.contentContainer, { marginTop: heightPercentage(7) }]}>
         <FlatList
           data={posts}
           keyExtractor={(post) => post.id}

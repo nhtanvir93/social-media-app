@@ -14,7 +14,7 @@ const ScreenWrapper = ({
   withHeader?: boolean
 }) => {
   const { top } = useSafeAreaInsets()
-  const paddingTop = top > 0 ? top + 5 : 30
+  const paddingTop = top > 0 ? top + 20 : 30
   const finalPaddingTop = withHeader ? 5 : paddingTop
 
   return (
