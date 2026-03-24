@@ -4,6 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { PostgrestError } from '@supabase/supabase-js'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
+import { Router } from 'expo-router'
 import React, { startTransition, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
@@ -22,11 +23,14 @@ type UserProfileRow = Database['public']['Tables']['users']['Row']
 const PostCard = ({
   post,
   currentUser,
+  router,
 }: {
   post: PostRowWithExtras
   currentUser: UserProfileRow
+  router: Router
 }) => {
   const { width } = useWindowDimensions()
+  console.log(router)
 
   const [likeInfo, setLikeInfo] = useState({
     isLiked: post.isLiked,

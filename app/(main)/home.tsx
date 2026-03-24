@@ -14,16 +14,15 @@ import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { fetchPosts, PostRow } from '@/utils/databases/post'
+import { fetchPosts, getPostListExtras, PostRowWithExtras } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
-import { getUserProfile } from '@/utils/databases/userProfile'
 
 type PostRowWithoutUser = Database['public']['Tables']['posts']['Row']
 
 const LIMIT = 20
 
 const Home = () => {
-  const [posts, setPosts] = useState<PostRow[]>([])
+  const [posts, setPosts] = useState<PostRowWithExtras[]>([])
   const [hasMorePosts, setHasMorePosts] = useState(true)
 
   const offsetRef = useRef(0)
@@ -38,19 +37,19 @@ const Home = () => {
 
       if (!('userId' in newPost)) return
 
-      const author = await getUserProfile(newPost.userId)
+      const extraInfo = await getPostListExtras(newPost.id, newPost.userId)
 
-      if (!author) return
+      if (!extraInfo.success) return
 
-      const newPostWithUser: PostRow = {
+      const newPostWithExtras: PostRowWithExtras = {
         ...newPost,
-        user: author,
+        ...extraInfo.data,
       }
 
       switch (eventType) {
         case 'INSERT':
           offsetRef.current++
-          setPosts((prev) => [newPostWithUser, ...prev])
+          setPosts((prev) => [newPostWithExtras, ...prev])
           break
       }
     },
