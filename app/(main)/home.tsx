@@ -14,7 +14,7 @@ import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { fetchPosts, getPostListExtras, PostRowWithExtras } from '@/utils/databases/post'
+import { fetchPosts, getPostListExtras, PostRowForList } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
 
 type PostRowWithoutUser = Database['public']['Tables']['posts']['Row']
@@ -22,7 +22,7 @@ type PostRowWithoutUser = Database['public']['Tables']['posts']['Row']
 const LIMIT = 20
 
 const Home = () => {
-  const [posts, setPosts] = useState<PostRowWithExtras[]>([])
+  const [posts, setPosts] = useState<PostRowForList[]>([])
   const [hasMorePosts, setHasMorePosts] = useState(true)
 
   const offsetRef = useRef(0)
@@ -41,7 +41,7 @@ const Home = () => {
 
       if (!extraInfo.success) return
 
-      const newPostWithExtras: PostRowWithExtras = {
+      const newPostWithExtras: PostRowForList = {
         ...newPost,
         ...extraInfo.data,
       }

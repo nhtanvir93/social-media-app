@@ -107,6 +107,10 @@ const PostCard = ({
     }
   }
 
+  const openPostDetails = () => {
+    router.push(`/postDetails/${post.id}`)
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -117,7 +121,9 @@ const PostCard = ({
             <Text style={styles.postDate}>{formatPostDate(post.createdAt)}</Text>
           </View>
         </View>
-        <Entypo name="dots-three-horizontal" size={16} color={theme.colors.textLight} />
+        <Pressable onPress={openPostDetails}>
+          <Entypo name="dots-three-horizontal" size={16} color={theme.colors.textLight} />
+        </Pressable>
       </View>
 
       {post.body && <PostDetailsViewer containerWidth={width} html={post.body} />}
@@ -203,7 +209,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textLight,
   },
   filePreview: {
-    borderRadius: theme.radius.lg,
     height: heightPercentage(30),
     width: '100%',
   },

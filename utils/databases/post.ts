@@ -2,17 +2,23 @@ import { supabase } from '@/lib/supabase'
 
 import { Database } from './types/database.types'
 
+type UserRow = Pick<Database['public']['Tables']['users']['Row'], 'id' | 'name' | 'image'>
+
 type PostPayload = Database['public']['Tables']['posts']['Insert']
 type PostLikeInsert = Database['public']['Tables']['postLikes']['Insert']
 
-type User = Pick<Database['public']['Tables']['users']['Row'], 'id' | 'name' | 'image'>
+export type PostRowListExtra = {
+  isLiked: boolean
+  likesCount: number
+  commentsCount: number
+}
 
-export type PostRow = Pick<
+export type PostRowForList = Pick<
   Database['public']['Tables']['posts']['Row'],
   'id' | 'body' | 'file' | 'createdAt'
 > & {
-  user: User
-}
+  user: UserRow
+} & PostRowListExtra
 
 export const createOrUpdatePost = async (payload: PostPayload) => {
   const { data, error } = await supabase.from('posts').upsert(payload).select().single()
@@ -49,20 +55,12 @@ export const deletePostLike = async (postId: string, userId: string) => {
 type getAllPostsResult =
   | {
       success: true
-      data: PostRowWithExtras[]
+      data: PostRowForList[]
     }
   | {
       success: false
       message: string
     }
-
-export type LikeCommentWithCurrentUserLike = {
-  likesCount: number
-  commentsCount: number
-  isLiked: boolean
-}
-
-export type PostRowWithExtras = PostRow & LikeCommentWithCurrentUserLike
 
 export const fetchPosts = async (
   userId: string,
@@ -122,8 +120,8 @@ export const fetchPosts = async (
 type getUserWithPostCommentCount =
   | {
       success: true
-      data: LikeCommentWithCurrentUserLike & {
-        user: User
+      data: PostRowListExtra & {
+        user: UserRow
       }
     }
   | {
