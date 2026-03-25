@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.4,
     borderColor: theme.colors.textLight,
     gap: 8,
+    backgroundColor: '#fff',
   },
   headerContainer: {
     flexDirection: 'row',
