@@ -13,7 +13,7 @@ import { useWindowDimensions } from 'react-native'
 import { theme } from '@/constants/theme'
 import { heightPercentage, stripHtml } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
-import { createPostLike, deletePostLike, PostRowWithExtras } from '@/utils/databases/post'
+import { createPostLike, deletePostLike, PostRowForList } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
 import { deleteFile, downloadFile } from '@/utils/fileUtil'
 
@@ -28,7 +28,7 @@ const PostCard = ({
   currentUser,
   router,
 }: {
-  post: PostRowWithExtras
+  post: PostRowForList
   currentUser: UserProfileRow
   router: Router
 }) => {
