@@ -40,7 +40,7 @@ const MainLayout = () => {
       return
     }
 
-    if (userProfile) {
+    if (userProfile && userProfile.email) {
       userEmail.current = userProfile.email
       router.replace('/home')
     } else if (!userProfile) {

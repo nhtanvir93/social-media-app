@@ -17,6 +17,7 @@ export type CommentRow = Pick<
 
 type PostPayload = Database['public']['Tables']['posts']['Insert']
 type PostLikeInsert = Database['public']['Tables']['postLikes']['Insert']
+type PostCommentInsert = Database['public']['Tables']['comments']['Insert']
 
 export type PostRowListExtra = {
   isLiked: boolean
@@ -52,12 +53,43 @@ export const createPostLike = async (postLikeInsert: PostLikeInsert) => {
   return data
 }
 
+export const createPostComment = async (postCommentInsert: PostCommentInsert) => {
+  const { data, error } = await supabase
+    .from('comments')
+    .upsert(postCommentInsert)
+    .select(
+      `
+      id,
+      text,
+      createdAt,
+      author: users (
+        id,
+        name,
+        image
+      )
+    `,
+    )
+    .single()
+
+  if (error) throw error
+
+  return data
+}
+
 export const deletePostLike = async (postId: string, userId: string) => {
   const { error } = await supabase
     .from('postLikes')
     .delete()
     .eq('postId', postId)
     .eq('userId', userId)
+
+  if (error) throw error
+
+  return { success: true }
+}
+
+export const deletePostComment = async (commentId: string) => {
+  const { error } = await supabase.from('comments').delete().eq('id', commentId)
 
   if (error) throw error
 

@@ -41,8 +41,14 @@ export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
   return data
 }
 
-export const getUserProfile = async (id: string): Promise<UserProfile | null> => {
-  const { data, error } = await supabase.from('users').select('*').eq('id', id).single()
+export const getUserProfile = async (
+  id: string,
+): Promise<Pick<UserProfile, 'id' | 'name' | 'image'> | null> => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, name, image')
+    .eq('id', id)
+    .single()
 
   if (error) return null
 

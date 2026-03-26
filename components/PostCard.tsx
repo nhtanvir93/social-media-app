@@ -108,7 +108,10 @@ const PostCard = ({
   }
 
   const openPostDetails = () => {
-    router.push(`/postDetails/${post.id}`)
+    router.push({
+      pathname: '/postDetails',
+      params: { postId: post.id },
+    })
   }
 
   return (
@@ -121,7 +124,7 @@ const PostCard = ({
             <Text style={styles.postDate}>{formatPostDate(post.createdAt)}</Text>
           </View>
         </View>
-        <Pressable onPress={openPostDetails}>
+        <Pressable>
           <Entypo name="dots-three-horizontal" size={16} color={theme.colors.textLight} />
         </Pressable>
       </View>
@@ -152,7 +155,7 @@ const PostCard = ({
           <Text style={styles.countText}>{likeInfo.likesCount}</Text>
         </Pressable>
 
-        <Pressable style={styles.actionInfo}>
+        <Pressable style={styles.actionInfo} onPress={openPostDetails}>
           <MaterialCommunityIcons
             name="comment-text-outline"
             size={20}
