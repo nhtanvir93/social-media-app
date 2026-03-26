@@ -10,10 +10,12 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
   View,
 } from 'react-native'
 
 import BackButton from '@/components/BackButton'
+import Comment from '@/components/Comment'
 import Input from '@/components/Input'
 import Loading from '@/components/Loading'
 import PostCard from '@/components/PostCard'
@@ -152,6 +154,7 @@ const PostDetails = () => {
     }
 
     if (comment.author.id !== userProfile.id && postDetails.user.id !== userProfile.id) {
+      Alert.alert('Warning', 'You are not allowed to delete this comment!!!')
       return
     }
 
@@ -339,6 +342,20 @@ const PostDetails = () => {
                 </Pressable>
               )}
             </View>
+            <View style={styles.comments}>
+              {comments.length === 0 && (
+                <Text style={styles.emptyCommentMsg}>Be first to comment!</Text>
+              )}
+              {comments.map((postComment) => (
+                <Comment
+                  key={postComment.id}
+                  postUserId={postDetails.user.id}
+                  currentUser={userProfile}
+                  comment={postComment}
+                  onDelete={(comment: CommentRow) => deleteComment(comment)}
+                />
+              ))}
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -379,5 +396,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: theme.radius.md,
+  },
+  emptyCommentMsg: {
+    color: theme.colors.text,
+    textAlign: 'center',
+    letterSpacing: 2,
+  },
+  comments: {
+    gap: 8,
   },
 })
