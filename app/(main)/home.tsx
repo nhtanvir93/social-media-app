@@ -79,8 +79,8 @@ const Home = () => {
   }, [userProfile])
 
   useEffect(() => {
-    const postChannel = supabase
-      .channel('posts')
+    const channel = supabase
+      .channel('realtime:posts-app')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'posts' },
@@ -89,9 +89,7 @@ const Home = () => {
       .subscribe()
 
     return () => {
-      ;(async () => {
-        await supabase.removeChannel(postChannel)
-      })()
+      supabase.removeChannel(channel)
     }
   }, [handlePostEvent])
 

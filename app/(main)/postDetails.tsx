@@ -1,5 +1,6 @@
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import Feather from '@expo/vector-icons/Feather'
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
@@ -20,12 +21,21 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 import {
   CommentRow,
   createPostComment,
+  createPostLike,
+  deletePostComment,
+  deletePostLike,
   fetchPostDetails,
   PostRowForList,
 } from '@/utils/databases/post'
+import { Database } from '@/utils/databases/types/database.types'
+import { getUserProfile } from '@/utils/databases/userProfile'
+
+type PostLikeRow = Database['public']['Tables']['postLikes']['Row']
+type PostCommentRow = Database['public']['Tables']['comments']['Row']
 
 const PostDetails = () => {
   const [postDetails, setPostDetails] = useState<PostRowForList | null>(null)
@@ -38,6 +48,45 @@ const PostDetails = () => {
   const { userProfile } = useAuth()
   const router = useRouter()
   const { postId } = useLocalSearchParams<{ postId: string }>()
+
+  const handleToggleLikeOptimistic = async () => {
+    if (!postDetails || !userProfile) return
+
+    const wasLiked = postDetails.isLiked
+
+    setPostDetails((prev) => {
+      if (!prev) return prev
+
+      return {
+        ...prev,
+        isLiked: !prev.isLiked,
+        likesCount: prev.likesCount + (wasLiked ? -1 : 1),
+      }
+    })
+
+    try {
+      if (wasLiked) {
+        await deletePostLike(postDetails.id, userProfile.id)
+      } else {
+        await createPostLike({
+          postId: postDetails.id,
+          userId: userProfile.id,
+        })
+      }
+    } catch (err) {
+      console.error('Like failed', err)
+
+      setPostDetails((prev) => {
+        if (!prev) return prev
+
+        return {
+          ...prev,
+          isLiked: !prev.isLiked,
+          likesCount: prev.likesCount + (wasLiked ? 1 : -1),
+        }
+      })
+    }
+  }
 
   const updatePostDetails = useCallback(async () => {
     if (!userProfile || !postId) return
@@ -84,14 +133,6 @@ const PostDetails = () => {
       })
 
       setComments([...comments, newCommentDetails])
-      setPostDetails((oldPostDetails) => {
-        if (!oldPostDetails) return oldPostDetails
-
-        return {
-          ...oldPostDetails,
-          commentsCount: oldPostDetails.commentsCount + 1,
-        }
-      })
       setComment('')
     } catch (error) {
       console.error('Add comment error:', error)
@@ -104,6 +145,154 @@ const PostDetails = () => {
       setLoadingComment(false)
     }
   }
+
+  const deleteComment = async (comment: CommentRow) => {
+    if (!userProfile || !postDetails) {
+      return
+    }
+
+    if (comment.author.id !== userProfile.id && postDetails.user.id !== userProfile.id) {
+      return
+    }
+
+    try {
+      await deletePostComment(comment.id)
+
+      setComments((prevComments) =>
+        prevComments.filter((oldComment) => oldComment.id !== comment.id),
+      )
+    } catch (error) {
+      console.log('Error occured while removing comment', error)
+      Alert.alert(
+        'Failed to remove comment',
+        'Something went wrong while removing comment. Please try again',
+      )
+    }
+  }
+
+  const handlePostLikeEvent = useCallback(
+    async (payload: RealtimePostgresChangesPayload<PostLikeRow>) => {
+      if (!userProfile) return
+
+      const { eventType, new: newPostLike, old: oldPostLike } = payload
+
+      if (eventType === 'INSERT') {
+        if (newPostLike.userId === userProfile.id) return
+
+        setPostDetails((prev) => {
+          if (!prev) return prev
+
+          return {
+            ...prev,
+            likesCount: prev.likesCount + 1,
+          }
+        })
+      }
+
+      if (eventType === 'DELETE') {
+        if (oldPostLike.userId === userProfile.id) return
+
+        setPostDetails((prev) => {
+          if (!prev) return prev
+
+          return {
+            ...prev,
+            likesCount: prev.likesCount - 1,
+          }
+        })
+      }
+    },
+    [userProfile],
+  )
+
+  const handlePostCommentEvent = useCallback(
+    async (payload: RealtimePostgresChangesPayload<PostCommentRow>) => {
+      if (!userProfile) return
+
+      const { eventType, new: newPostComment, old: oldPostComment } = payload
+
+      if (eventType == 'INSERT') {
+        if (newPostComment.userId === userProfile.id) return
+
+        const author = await getUserProfile(userProfile.id)
+
+        if (!author) {
+          return
+        }
+
+        const newComment = {
+          id: newPostComment.id,
+          text: newPostComment.text,
+          createdAt: newPostComment.createdAt,
+          author,
+        }
+
+        setPostDetails((prevPostDetails) => {
+          if (!prevPostDetails) {
+            return prevPostDetails
+          }
+
+          return {
+            ...prevPostDetails,
+            commentsCount: prevPostDetails.commentsCount + 1,
+          }
+        })
+
+        setComments([...comments, newComment])
+      } else if (eventType === 'DELETE') {
+        setPostDetails((prevPostDetails) => {
+          if (!prevPostDetails) {
+            return prevPostDetails
+          }
+
+          return {
+            ...prevPostDetails,
+            commentsCount: prevPostDetails.commentsCount - 1,
+          }
+        })
+
+        setComments((prevComments) =>
+          prevComments.filter((comment) => comment.id !== oldPostComment.id),
+        )
+      }
+    },
+    [userProfile, comments],
+  )
+
+  useEffect(() => {
+    if (!postDetails) {
+      return
+    }
+
+    const channel = supabase
+      .channel('realtime:post-details')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'postLikes',
+          filter: `postId=eq.${postDetails.id}`,
+        },
+        handlePostLikeEvent,
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'comments',
+          filter: `postId=eq.${postDetails.id}`,
+        },
+        handlePostCommentEvent,
+      )
+
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [postDetails, handlePostLikeEvent, handlePostCommentEvent])
 
   if (!postDetails || !userProfile || loading) {
     return (
@@ -122,7 +311,11 @@ const PostDetails = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <BackButton router={router} />
           <View style={styles.contentContainer}>
-            <PostCard post={postDetails} currentUser={userProfile} router={router} />
+            <PostCard
+              post={postDetails}
+              router={router}
+              onToggleLike={handleToggleLikeOptimistic}
+            />
             <View style={styles.commentInputContainer}>
               <Input
                 placeholder="Type comment ..."

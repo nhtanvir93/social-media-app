@@ -1,79 +1,36 @@
 import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { PostgrestError } from '@supabase/supabase-js'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Router } from 'expo-router'
 import * as Sharing from 'expo-sharing'
-import React, { startTransition, useState } from 'react'
+import React, { useState } from 'react'
 import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
 
 import { theme } from '@/constants/theme'
 import { heightPercentage, stripHtml } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
-import { createPostLike, deletePostLike, PostRowForList } from '@/utils/databases/post'
-import { Database } from '@/utils/databases/types/database.types'
+import { PostRowForList } from '@/utils/databases/post'
 import { deleteFile, downloadFile } from '@/utils/fileUtil'
 
 import Avatar from './Avatar'
 import Loading from './Loading'
 import PostDetailsViewer from './PostDetailsViewer'
 
-type UserProfileRow = Database['public']['Tables']['users']['Row']
-
 const PostCard = ({
   post,
-  currentUser,
   router,
+  onToggleLike,
 }: {
   post: PostRowForList
-  currentUser: UserProfileRow
   router: Router
+  onToggleLike: () => void
 }) => {
   const { width } = useWindowDimensions()
   // console.log(router)
-
-  const [likeInfo, setLikeInfo] = useState({
-    isLiked: post.isLiked,
-    likesCount: post.likesCount,
-  })
   const [loading, setLoading] = useState(false)
-
-  const handleToggleLike = async () => {
-    const currentlyLiked = likeInfo.isLiked
-    const oldLikesCount = likeInfo.likesCount
-
-    startTransition(() => {
-      setLikeInfo({
-        isLiked: !currentlyLiked,
-        likesCount: currentlyLiked ? oldLikesCount - 1 : oldLikesCount + 1,
-      })
-    })
-
-    try {
-      if (currentlyLiked) {
-        await deletePostLike(post.id, currentUser.id)
-      } else {
-        await createPostLike({ postId: post.id, userId: currentUser.id })
-      }
-    } catch (err: unknown) {
-      if (err instanceof PostgrestError && err.code === '23505') {
-        console.warn('Like already exists, ignoring duplicate')
-        return
-      }
-
-      console.error('Failed to toggle like', err)
-
-      startTransition(() => {
-        setLikeInfo({
-          isLiked: currentlyLiked,
-          likesCount: oldLikesCount,
-        })
-      })
-    }
-  }
 
   const handleShare = async () => {
     try {
@@ -146,13 +103,13 @@ const PostCard = ({
       )}
 
       <View style={styles.actionContainer}>
-        <Pressable style={styles.actionInfo} onPress={handleToggleLike}>
-          {likeInfo.isLiked ? (
+        <Pressable style={styles.actionInfo} onPress={onToggleLike}>
+          {post.isLiked ? (
             <Entypo name="heart" size={20} color={theme.colors.rose} />
           ) : (
             <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
           )}
-          <Text style={styles.countText}>{likeInfo.likesCount}</Text>
+          <Text style={styles.countText}>{post.likesCount}</Text>
         </Pressable>
 
         <Pressable style={styles.actionInfo} onPress={openPostDetails}>
