@@ -12,25 +12,82 @@ import { useWindowDimensions } from 'react-native'
 import { theme } from '@/constants/theme'
 import { heightPercentage, stripHtml } from '@/helpers/common'
 import { formatPostDate } from '@/helpers/customDate'
-import { PostRowForList } from '@/utils/databases/post'
+import { useAuth } from '@/hooks/useAuth'
+import { createPostLike, deletePostLike, PostRowForList } from '@/utils/databases/post'
+import { Database } from '@/utils/databases/types/database.types'
 import { deleteFile, downloadFile } from '@/utils/fileUtil'
 
 import Avatar from './Avatar'
 import Loading from './Loading'
 import PostDetailsViewer from './PostDetailsViewer'
 
+type UserProfile = Database['public']['Tables']['users']['Row']
+
 const PostCard = ({
   post,
   router,
-  onToggleLike,
+  isCommentClickable = true,
 }: {
   post: PostRowForList
   router: Router
-  onToggleLike: () => void
+  isCommentClickable?: boolean
+}) => {
+  const { userProfile } = useAuth()
+
+  if (!userProfile || !post) {
+    return null
+  }
+
+  return (
+    <PostCardContainer
+      currentUser={userProfile}
+      post={post}
+      isCommentClickable={isCommentClickable}
+      router={router}
+    />
+  )
+}
+
+const PostCardContainer = ({
+  post,
+  currentUser,
+  isCommentClickable,
+  router,
+}: {
+  post: PostRowForList
+  currentUser: UserProfile
+  isCommentClickable: boolean
+  router: Router
 }) => {
   const { width } = useWindowDimensions()
   // console.log(router)
   const [loading, setLoading] = useState(false)
+  const [isLiked, setIsLiked] = useState(post.isLiked)
+  const [likesCount, setLikesCount] = useState(post.likesCount)
+  const [commentsCount, setCommentsCount] = useState(post.commentsCount)
+
+  const handleToggleLikeOptimistic = async () => {
+    const wasLiked = isLiked
+
+    setIsLiked((prev) => !prev)
+    setLikesCount((prev) => prev + (wasLiked ? -1 : 1))
+
+    try {
+      if (wasLiked) {
+        await deletePostLike(post.id, currentUser.id)
+      } else {
+        await createPostLike({
+          postId: post.id,
+          userId: currentUser.id,
+        })
+      }
+    } catch (err) {
+      console.error('Like failed', err)
+
+      setIsLiked(wasLiked)
+      setLikesCount((prev) => prev + (wasLiked ? 1 : -1))
+    }
+  }
 
   const handleShare = async () => {
     try {
@@ -103,22 +160,25 @@ const PostCard = ({
       )}
 
       <View style={styles.actionContainer}>
-        <Pressable style={styles.actionInfo} onPress={onToggleLike}>
-          {post.isLiked ? (
+        <Pressable style={styles.actionInfo} onPress={handleToggleLikeOptimistic}>
+          {isLiked ? (
             <Entypo name="heart" size={20} color={theme.colors.rose} />
           ) : (
             <Entypo name="heart-outlined" size={20} color={theme.colors.rose} />
           )}
-          <Text style={styles.countText}>{post.likesCount}</Text>
+          <Text style={styles.countText}>{likesCount}</Text>
         </Pressable>
 
-        <Pressable style={styles.actionInfo} onPress={openPostDetails}>
+        <Pressable
+          style={styles.actionInfo}
+          onPress={() => isCommentClickable && openPostDetails()}
+        >
           <MaterialCommunityIcons
             name="comment-text-outline"
             size={20}
             color={theme.colors.text}
           />
-          <Text style={styles.countText}>{post.commentsCount}</Text>
+          <Text style={styles.countText}>{commentsCount}</Text>
         </Pressable>
 
         <View>

@@ -25,9 +25,7 @@ import { useAuth } from '@/hooks/useAuth'
 import {
   CommentRow,
   createPostComment,
-  createPostLike,
   deletePostComment,
-  deletePostLike,
   fetchPostDetails,
   PostRowForList,
 } from '@/utils/databases/post'
@@ -43,45 +41,6 @@ const PostDetails = () => {
   const { userProfile } = useAuth()
   const router = useRouter()
   const { postId } = useLocalSearchParams<{ postId: string }>()
-
-  const handleToggleLikeOptimistic = async () => {
-    if (!postDetails || !userProfile) return
-
-    const wasLiked = postDetails.isLiked
-
-    setPostDetails((prev) => {
-      if (!prev) return prev
-
-      return {
-        ...prev,
-        isLiked: !prev.isLiked,
-        likesCount: prev.likesCount + (wasLiked ? -1 : 1),
-      }
-    })
-
-    try {
-      if (wasLiked) {
-        await deletePostLike(postDetails.id, userProfile.id)
-      } else {
-        await createPostLike({
-          postId: postDetails.id,
-          userId: userProfile.id,
-        })
-      }
-    } catch (err) {
-      console.error('Like failed', err)
-
-      setPostDetails((prev) => {
-        if (!prev) return prev
-
-        return {
-          ...prev,
-          isLiked: !prev.isLiked,
-          likesCount: prev.likesCount + (wasLiked ? 1 : -1),
-        }
-      })
-    }
-  }
 
   const updatePostDetails = useCallback(async () => {
     if (!userProfile || !postId) return
@@ -183,11 +142,7 @@ const PostDetails = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <BackButton router={router} />
           <View style={styles.contentContainer}>
-            <PostCard
-              post={postDetails}
-              router={router}
-              onToggleLike={handleToggleLikeOptimistic}
-            />
+            <PostCard post={postDetails} router={router} />
             <View style={styles.commentInputContainer}>
               <Input
                 placeholder="Type comment ..."
@@ -219,7 +174,6 @@ const PostDetails = () => {
                 <Comment
                   key={postComment.id}
                   postUserId={postDetails.user.id}
-                  currentUser={userProfile}
                   comment={postComment}
                   onDelete={(comment: CommentRow) => deleteComment(comment)}
                 />

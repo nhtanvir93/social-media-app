@@ -131,9 +131,7 @@ const Home = () => {
             styles.listStyle,
             posts.length === 0 && styles.emptyList,
           ]}
-          renderItem={({ item: post }) => (
-            <PostCard post={post} currentUser={userProfile} router={router} />
-          )}
+          renderItem={({ item: post }) => <PostCard post={post} router={router} />}
           onEndReached={() => hasMorePosts && updatePosts()}
           onEndReachedThreshold={0}
           ListFooterComponent={
