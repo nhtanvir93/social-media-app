@@ -5,7 +5,7 @@ import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Router } from 'expo-router'
 import * as Sharing from 'expo-sharing'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native'
 import { useWindowDimensions } from 'react-native'
 
@@ -127,6 +127,11 @@ const PostCardContainer = ({
       params: { postId: post.id },
     })
   }
+
+  useEffect(() => {
+    setIsLiked(post.isLiked)
+    setLikesCount(post.likesCount)
+  }, [post.isLiked, post.likesCount])
 
   return (
     <View style={styles.container}>

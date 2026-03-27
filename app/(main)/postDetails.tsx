@@ -142,7 +142,12 @@ const PostDetails = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <BackButton router={router} />
           <View style={styles.contentContainer}>
-            <PostCard post={postDetails} router={router} />
+            <PostCard
+              post={postDetails}
+              router={router}
+              isCommentClickable={false}
+              parent="PostDetails"
+            />
             <View style={styles.commentInputContainer}>
               <Input
                 placeholder="Type comment ..."
@@ -172,6 +177,7 @@ const PostDetails = () => {
               )}
               {comments.map((postComment) => (
                 <Comment
+                  currentUser={userProfile}
                   key={postComment.id}
                   postUserId={postDetails.user.id}
                   comment={postComment}
