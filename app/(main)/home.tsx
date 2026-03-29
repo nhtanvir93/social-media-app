@@ -1,8 +1,7 @@
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { useRouter } from 'expo-router'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -13,85 +12,17 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
-import { fetchPosts, getPostListExtras, PostRowForList } from '@/utils/databases/post'
-import { Database } from '@/utils/databases/types/database.types'
-
-type PostRowWithoutUser = Database['public']['Tables']['posts']['Row']
-
-const LIMIT = 20
+import usePostList from '@/hooks/usePostList'
 
 const Home = () => {
-  const [posts, setPosts] = useState<PostRowForList[]>([])
-  const [hasMorePosts, setHasMorePosts] = useState(true)
+  const { userProfile } = useAuth()
 
-  const offsetRef = useRef(0)
+  const { posts, hasMorePosts, updatePosts } = usePostList({
+    userId: userProfile?.id,
+  })
 
   const router = useRouter()
-  const { userProfile } = useAuth()
   const { top } = useSafeAreaInsets()
-
-  const handlePostEvent = useCallback(
-    async (payload: RealtimePostgresChangesPayload<PostRowWithoutUser>) => {
-      const { eventType, new: newPost } = payload
-
-      if (!('userId' in newPost)) return
-
-      const extraInfo = await getPostListExtras(newPost.id, newPost.userId)
-
-      if (!extraInfo.success) return
-
-      const newPostWithExtras: PostRowForList = {
-        ...newPost,
-        ...extraInfo.data,
-      }
-
-      switch (eventType) {
-        case 'INSERT':
-          offsetRef.current++
-          setPosts((prev) => [newPostWithExtras, ...prev])
-          break
-      }
-    },
-    [],
-  )
-
-  const updatePosts = useCallback(async () => {
-    if (!userProfile) {
-      return
-    }
-
-    const result = await fetchPosts(userProfile.id, offsetRef.current, LIMIT)
-
-    if (!result.success || !result.data) {
-      setHasMorePosts(false)
-      return
-    }
-
-    if (result.data !== null) {
-      offsetRef.current += result.data.length
-      setPosts((prev) => [...prev, ...result.data])
-
-      if (result.data.length < LIMIT) {
-        setHasMorePosts(false)
-      }
-    }
-  }, [userProfile])
-
-  useEffect(() => {
-    const channel = supabase
-      .channel('realtime:posts-app')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'posts' },
-        handlePostEvent,
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [handlePostEvent])
 
   if (!userProfile) {
     return null
@@ -132,7 +63,7 @@ const Home = () => {
             posts.length === 0 && styles.emptyList,
           ]}
           renderItem={({ item: post }) => <PostCard post={post} router={router} />}
-          onEndReached={() => hasMorePosts && updatePosts()}
+          onEndReached={updatePosts}
           onEndReachedThreshold={0}
           ListFooterComponent={
             hasMorePosts ? (

@@ -110,11 +110,10 @@ export const fetchPosts = async (
   userId: string,
   offset = 0,
   limit = 20,
+  onlyMe = false,
 ): Promise<GetAllPostsResult> => {
-  const { data, error } = await supabase
-    .from('posts')
-    .select(
-      `
+  let query = supabase.from('posts').select(
+    `
       id,
       body,
       file,
@@ -133,7 +132,13 @@ export const fetchPosts = async (
       ),
       comments(count)
     `,
-    )
+  )
+
+  if (onlyMe) {
+    query = query.eq('userId', userId)
+  }
+
+  const { data, error } = await query
     .order('createdAt', { ascending: false })
     .range(offset, offset + limit - 1)
 
