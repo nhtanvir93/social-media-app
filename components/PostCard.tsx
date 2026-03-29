@@ -131,7 +131,8 @@ const PostCardContainer = ({
   useEffect(() => {
     setIsLiked(post.isLiked)
     setLikesCount(post.likesCount)
-  }, [post.isLiked, post.likesCount])
+    setCommentsCount(post.commentsCount)
+  }, [post.isLiked, post.likesCount, post.commentsCount])
 
   return (
     <View style={styles.container}>

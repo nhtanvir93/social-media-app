@@ -23,6 +23,8 @@ export type PostRowListExtra = {
   isLiked: boolean
   likesCount: number
   commentsCount: number
+  likeIds: string[]
+  commentIds: string[]
 }
 
 export type PostRowForList = PostRow & {
@@ -130,7 +132,9 @@ export const fetchPosts = async (
         postId, 
         userId
       ),
-      comments(count)
+      comments(
+        id
+      )
     `,
   )
 
@@ -155,9 +159,12 @@ export const fetchPosts = async (
 
     user: post.user,
 
-    likesCount: post.postLikes.length,
-    commentsCount: post.comments[0]?.count ?? 0,
+    likesCount: post.postLikes?.length ?? 0,
+    commentsCount: post.comments?.length ?? 0,
     isLiked: post.postLikes?.some((like) => like.userId === userId) ?? false,
+
+    likeIds: post.postLikes?.map((postLike) => postLike.id) ?? [],
+    commentIds: post.comments?.map((comment) => comment.id) ?? [],
   }))
 
   return {
