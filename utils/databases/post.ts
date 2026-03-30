@@ -173,62 +173,6 @@ export const fetchPosts = async (
   }
 }
 
-type getUserWithPostCommentCount =
-  | {
-      success: true
-      data: PostRowListExtra & {
-        user: UserRow
-      }
-    }
-  | {
-      success: false
-      message: string
-    }
-
-export const getPostListExtras = async (
-  postId: string,
-  userId: string,
-): Promise<getUserWithPostCommentCount> => {
-  const { data: post, error } = await supabase
-    .from('posts')
-    .select(
-      `
-      user: users (
-        id,
-        name,
-        image
-      ),
-
-      postLikes(
-        id,
-        postId, 
-        userId
-      ),
-      comments(count)
-    `,
-    )
-    .eq('id', postId)
-    .single()
-
-  if (error) {
-    console.log(`Fetch posts error : ${error.message}`)
-    return { success: false, message: 'Could not fetch the post extra info' }
-  }
-
-  const formatted = {
-    user: post.user,
-
-    likesCount: post.postLikes.length,
-    commentsCount: post.comments[0]?.count ?? 0,
-    isLiked: post.postLikes?.some((like) => like.userId === userId) ?? false,
-  }
-
-  return {
-    success: true,
-    data: formatted,
-  }
-}
-
 type GetPostDetailsResult =
   | {
       success: true
@@ -259,6 +203,7 @@ export const fetchPostDetails = async (
       ),
 
       postLikes (
+        id,
         userId
       ),
 
@@ -300,6 +245,9 @@ export const fetchPostDetails = async (
       createdAt: c.createdAt,
       author: c.author,
     })),
+
+    likeIds: data.postLikes?.map((postLike) => postLike.id) ?? [],
+    commentIds: data.comments?.map((comment) => comment.id) ?? [],
   }
 
   return {

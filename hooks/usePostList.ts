@@ -5,14 +5,15 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { supabase } from '@/lib/supabase'
-import { fetchPosts, getPostListExtras, PostRowForList } from '@/utils/databases/post'
+import { fetchPosts, PostRowForList } from '@/utils/databases/post'
 import { Database } from '@/utils/databases/types/database.types'
+import { getUserProfile } from '@/utils/databases/userProfile'
 
 type PostRowWithoutUser = Database['public']['Tables']['posts']['Row']
 type PostLikeRow = Database['public']['Tables']['postLikes']['Row']
 type PostCommentRow = Database['public']['Tables']['comments']['Row']
 
-const LIMIT = 2
+const LIMIT = 20
 
 const usePostList = ({
   userId,
@@ -78,13 +79,20 @@ const usePostList = ({
 
       if (!('userId' in newPost)) return
 
-      const extraInfo = await getPostListExtras(newPost.id, newPost.userId)
+      const author = await getUserProfile(newPost.userId)
 
-      if (!extraInfo.success) return
+      if (!author) {
+        return
+      }
 
       const newPostWithExtras: PostRowForList = {
         ...newPost,
-        ...extraInfo.data,
+        isLiked: false,
+        likesCount: 0,
+        commentsCount: 0,
+        likeIds: [],
+        commentIds: [],
+        user: author,
       }
 
       switch (eventType) {
