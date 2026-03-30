@@ -341,6 +341,8 @@ const PostDetails = () => {
     const oldComments = [...comments]
     const uniqueStr = String(Date.now())
 
+    setComment('')
+
     setPostDetails((prevPostDetails) => {
       if (!prevPostDetails) {
         return null
@@ -401,8 +403,9 @@ const PostDetails = () => {
           return newCommentDetails
         }),
       )
-      setComment('')
     } catch (error) {
+      setComment(newComment)
+
       setPostDetails((prevPostDetails) => {
         if (!prevPostDetails) {
           return null
