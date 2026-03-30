@@ -75,18 +75,11 @@ const PostDetails = () => {
 
   const handlePostLikeInsertEvent = useCallback(
     async (payload: RealtimePostgresInsertPayload<PostLikeRow>) => {
-      console.log('New Like Added')
-
       if (!userProfile?.id) {
         return
       }
 
       const { new: newPostLike } = payload
-      console.log(
-        `Same User = ${newPostLike.userId === userProfile.id}`,
-        'newPostLike',
-        newPostLike,
-      )
 
       if (
         postLikeIdsRef.current.has(newPostLike.id) ||
@@ -113,18 +106,11 @@ const PostDetails = () => {
 
   const handlePostLikeDeleteEvent = useCallback(
     async (payload: RealtimePostgresInsertPayload<PostLikeRow>) => {
-      console.log('Old Like Deleted')
-
       if (!userProfile?.id) {
         return
       }
 
       const { new: deletedPostLike } = payload
-      console.log(
-        `Same User = ${deletedPostLike.userId === userProfile.id}`,
-        'deletedPostLike',
-        deletedPostLike,
-      )
 
       if (
         !postLikeIdsRef.current.has(deletedPostLike.id) ||
@@ -203,14 +189,11 @@ const PostDetails = () => {
 
   const handlePostCommentDeleteEvent = useCallback(
     async (payload: RealtimePostgresInsertPayload<PostCommentRow>) => {
-      console.log('Delete Comment')
-
       if (!userProfile?.id) {
         return
       }
 
       const { new: deletedPostComment } = payload
-      console.log(deletedPostComment)
 
       if (
         !postCommentIdsRef.current.has(deletedPostComment.id) ||
@@ -244,10 +227,6 @@ const PostDetails = () => {
     },
     [setPostDetails, userProfile?.id],
   )
-
-  useEffect(() => {
-    console.log('PostDetails', postDetails)
-  }, [postDetails])
 
   useEffect(() => {
     updatePostDetails()

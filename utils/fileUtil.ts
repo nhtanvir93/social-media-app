@@ -71,9 +71,6 @@ export const uploadFile = async (
       }
     }
 
-    console.log('Uploading to bucket:', bucketId)
-    console.log('File size:', file.fileSize, 'Type:', file.type)
-
     const { data, error } = await supabase.storage
       .from(bucketId)
       .upload(fileName, fileArrayBuffer, {
@@ -147,7 +144,6 @@ export const deleteFile = async (fileUri?: string | null) => {
     const file = new File(fileUri)
 
     if (file.exists) {
-      console.log('Sharing file removed', fileUri)
       await file.delete()
     }
   } catch (error) {
