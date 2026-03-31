@@ -77,29 +77,43 @@ const usePostList = ({
     async (payload: RealtimePostgresChangesPayload<PostRowWithoutUser>) => {
       const { eventType, new: newPost } = payload
 
-      if (!('userId' in newPost)) return
+      if (eventType === 'INSERT') {
+        if (!('userId' in newPost)) return
 
-      const author = await getUserProfile(newPost.userId)
+        const author = await getUserProfile(newPost.userId)
 
-      if (!author) {
-        return
+        if (!author) {
+          return
+        }
+
+        const newPostWithExtras: PostRowForList = {
+          ...newPost,
+          isLiked: false,
+          likesCount: 0,
+          commentsCount: 0,
+          likeIds: [],
+          commentIds: [],
+          user: author,
+        }
+
+        offsetRef.current++
+        setPosts((prev) => [newPostWithExtras, ...prev])
       }
 
-      const newPostWithExtras: PostRowForList = {
-        ...newPost,
-        isLiked: false,
-        likesCount: 0,
-        commentsCount: 0,
-        likeIds: [],
-        commentIds: [],
-        user: author,
-      }
+      if (eventType === 'UPDATE') {
+        setPosts((prevPosts) =>
+          prevPosts.map((prevPost) => {
+            if (prevPost.id !== newPost.id) {
+              return prevPost
+            }
 
-      switch (eventType) {
-        case 'INSERT':
-          offsetRef.current++
-          setPosts((prev) => [newPostWithExtras, ...prev])
-          break
+            return {
+              ...prevPost,
+              body: newPost.body,
+              file: newPost.file,
+            }
+          }),
+        )
       }
     },
     [],

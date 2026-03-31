@@ -1,6 +1,9 @@
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import Feather from '@expo/vector-icons/Feather'
-import { RealtimePostgresInsertPayload } from '@supabase/supabase-js'
+import {
+  RealtimePostgresInsertPayload,
+  RealtimePostgresUpdatePayload,
+} from '@supabase/supabase-js'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -34,6 +37,7 @@ import {
 import { Database } from '@/utils/databases/types/database.types'
 import { getUserProfile } from '@/utils/databases/userProfile'
 
+type PostRow = Database['public']['Tables']['posts']['Row']
 type PostLikeRow = Database['public']['Tables']['postLikes']['Row']
 type PostCommentRow = Database['public']['Tables']['comments']['Row']
 
@@ -228,6 +232,25 @@ const PostDetails = () => {
     [setPostDetails, userProfile?.id],
   )
 
+  const handlePostUpdateEvent = useCallback(
+    async (payload: RealtimePostgresUpdatePayload<PostRow>) => {
+      const { new: newPostDetails } = payload
+
+      setPostDetails((prevPostDetails) => {
+        if (!prevPostDetails) {
+          return null
+        }
+
+        return {
+          ...prevPostDetails,
+          body: newPostDetails.body,
+          file: newPostDetails.file,
+        }
+      })
+    },
+    [],
+  )
+
   useEffect(() => {
     updatePostDetails()
 
@@ -273,6 +296,16 @@ const PostDetails = () => {
         },
         handlePostCommentDeleteEvent,
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'posts',
+          filter: `id=eq.${postDetails?.id}`,
+        },
+        handlePostUpdateEvent,
+      )
       .subscribe((status) => {
         console.log('Realtime status (postDetails):', status)
 
@@ -302,6 +335,7 @@ const PostDetails = () => {
     handlePostLikeDeleteEvent,
     handlePostCommentInsertEvent,
     handlePostCommentDeleteEvent,
+    handlePostUpdateEvent,
     postDetails?.id,
   ])
 
