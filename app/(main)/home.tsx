@@ -62,7 +62,9 @@ const Home = () => {
             styles.listStyle,
             posts.length === 0 && styles.emptyList,
           ]}
-          renderItem={({ item: post }) => <PostCard post={post} router={router} />}
+          renderItem={({ item: post }) => (
+            <PostCard post={post} router={router} isCommentClickable={true} />
+          )}
           onEndReached={updatePosts}
           onEndReachedThreshold={0}
           ListFooterComponent={

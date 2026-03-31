@@ -144,7 +144,7 @@ export type Database = {
           createdAt?: string | null
           file?: string | null
           id?: string
-          userId: string
+          userId?: string
         }
         Update: {
           body?: string | null

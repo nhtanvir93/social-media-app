@@ -15,7 +15,7 @@ export type CommentRow = Pick<
   author: UserRow
 }
 
-type PostPayload = Database['public']['Tables']['posts']['Insert']
+type PostPayload = Database['public']['Tables']['posts']['Update']
 type PostLikeInsert = Database['public']['Tables']['postLikes']['Insert']
 type PostCommentInsert = Database['public']['Tables']['comments']['Insert']
 

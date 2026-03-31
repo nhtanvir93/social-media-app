@@ -3,7 +3,7 @@ import { View } from 'react-native'
 import RenderHtml, { HTMLSourceInline } from 'react-native-render-html'
 
 import { theme } from '@/constants/theme'
-import { heightPercentage } from '@/helpers/common'
+import { heightPercentage, widthPercentage } from '@/helpers/common'
 
 const baseStyle = {
   color: theme.colors.primaryDark,
@@ -26,6 +26,9 @@ const PostDetailsViewer = ({
         source={{ html }}
         baseStyle={baseStyle}
         tagsStyles={{
+          div: {
+            width: widthPercentage(100),
+          },
           p: {
             marginVertical: 6,
             color: theme.colors.primaryDark,
@@ -74,16 +77,12 @@ const PostDetailsViewer = ({
           ul: { paddingLeft: 20, marginVertical: 4 },
           ol: { paddingLeft: 20, marginVertical: 4 },
           li: { marginVertical: 2 },
-          '.ql-align-left': { textAlign: 'left' },
-          '.ql-align-center': { textAlign: 'center' },
-          '.ql-align-right': { textAlign: 'right' },
           hr: {
             borderBottomWidth: 1,
             borderBottomColor: theme.colors.textLight,
             marginVertical: 8,
           },
         }}
-        ignoredStyles={['fontFamily', 'fontSize', 'lineHeight']}
       />
     </View>
   )

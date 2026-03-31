@@ -1,8 +1,7 @@
 import Entypo from '@expo/vector-icons/Entypo'
 import Feather from '@expo/vector-icons/Feather'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { ResizeMode, Video } from 'expo-av'
-import { Image } from 'expo-image'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { Router } from 'expo-router'
 import * as Sharing from 'expo-sharing'
 import React, { useEffect, useState } from 'react'
@@ -18,34 +17,44 @@ import { Database } from '@/utils/databases/types/database.types'
 import { deleteFile, downloadFile } from '@/utils/fileUtil'
 
 import Avatar from './Avatar'
+import FilePreview from './FilePreview'
 import Loading from './Loading'
 import PostDetailsViewer from './PostDetailsViewer'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 
-const PostCard = ({
-  post,
-  router,
-  isCommentClickable = true,
-}: {
+type BaseProps = {
   post: PostRowForList
   router: Router
   isCommentClickable?: boolean
-}) => {
+}
+
+type WithIcons = {
+  showIcons: true
+  onEdit: () => void
+  onDelete: () => void
+}
+
+type WithoutIcons = {
+  showIcons?: false
+  onEdit?: never
+  onDelete?: never
+}
+
+type PostCardProps = BaseProps & (WithIcons | WithoutIcons)
+
+const PostCard = (props: PostCardProps) => {
   const { userProfile } = useAuth()
 
-  if (!userProfile || !post) {
+  if (!userProfile || !props.post) {
     return null
   }
 
-  return (
-    <PostCardContainer
-      currentUser={userProfile}
-      post={post}
-      isCommentClickable={isCommentClickable}
-      router={router}
-    />
-  )
+  return <PostCardContainer {...props} currentUser={userProfile} />
+}
+
+type PostCardContainerProps = PostCardProps & {
+  currentUser: UserProfile
 }
 
 const PostCardContainer = ({
@@ -53,12 +62,10 @@ const PostCardContainer = ({
   currentUser,
   isCommentClickable,
   router,
-}: {
-  post: PostRowForList
-  currentUser: UserProfile
-  isCommentClickable: boolean
-  router: Router
-}) => {
+  showIcons,
+  onEdit,
+  onDelete,
+}: PostCardContainerProps) => {
   const { width } = useWindowDimensions()
   // console.log(router)
   const [loading, setLoading] = useState(false)
@@ -144,26 +151,42 @@ const PostCardContainer = ({
             <Text style={styles.postDate}>{formatPostDate(post.createdAt)}</Text>
           </View>
         </View>
-        <Pressable onPress={openPostDetails}>
-          <Entypo name="dots-three-horizontal" size={16} color={theme.colors.textLight} />
-        </Pressable>
+        <View style={styles.actionsContainer}>
+          {showIcons && (
+            <View style={styles.actionIcons}>
+              <Pressable
+                onPress={onEdit}
+                style={({ pressed }) => pressed && { opacity: 0.6 }}
+              >
+                <Feather name="edit-2" size={16} color={theme.colors.primaryDark} />
+              </Pressable>
+              <Pressable
+                onPress={onDelete}
+                style={({ pressed }) => pressed && { opacity: 0.6 }}
+              >
+                <MaterialIcons
+                  name="delete-outline"
+                  size={18}
+                  color={theme.colors.roseLight}
+                />
+              </Pressable>
+            </View>
+          )}
+          {!showIcons && (
+            <Pressable onPress={openPostDetails}>
+              <Entypo
+                name="dots-three-horizontal"
+                size={18}
+                color={theme.colors.textLight}
+              />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {post.body && <PostDetailsViewer containerWidth={width} html={post.body} />}
 
-      {post.file?.includes('image') && (
-        <Image source={post.file} contentFit="cover" style={styles.filePreview} />
-      )}
-
-      {post.file?.includes('video') && (
-        <Video
-          source={{ uri: post.file }}
-          style={styles.filePreview}
-          useNativeControls
-          resizeMode={ResizeMode.CONTAIN}
-          isLooping
-        />
-      )}
+      <FilePreview fileUrl={post.file} />
 
       <View style={styles.actionContainer}>
         <Pressable style={styles.actionInfo} onPress={handleToggleLikeOptimistic}>
@@ -214,8 +237,16 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  actionIcons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
   },
   publisherContainer: {
     flexDirection: 'row',

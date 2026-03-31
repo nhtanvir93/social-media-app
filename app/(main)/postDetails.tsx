@@ -466,6 +466,35 @@ const PostDetails = () => {
     }
   }
 
+  const handleDelete = () => {
+    Alert.alert('Confirm', 'Do you want to delete this post ?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {},
+      },
+    ])
+  }
+
+  const handleEdit = () => {
+    if (!postDetails) {
+      return
+    }
+
+    router.push({
+      pathname: '/createPost',
+      params: {
+        postId: postDetails.id,
+        postBody: postDetails.body,
+        fileUrl: postDetails.file,
+      },
+    })
+  }
+
   if (!postDetails || !userProfile) {
     return (
       <View style={styles.loaderContainer}>
@@ -483,7 +512,14 @@ const PostDetails = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <BackButton router={router} />
           <View style={styles.contentContainer}>
-            <PostCard post={postDetails} router={router} isCommentClickable={false} />
+            <PostCard
+              post={postDetails}
+              router={router}
+              isCommentClickable={false}
+              showIcons={true}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
             <View style={styles.commentInputContainer}>
               <Input
                 placeholder="Type comment ..."

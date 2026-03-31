@@ -4,13 +4,14 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import * as ImagePicker from 'expo-image-picker'
-import { useRouter } from 'expo-router'
-import React, { useRef, useState } from 'react'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import React, { useEffect, useRef, useState } from 'react'
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { RichEditor } from 'react-native-pell-rich-editor'
 
 import Avatar from '@/components/Avatar'
 import Button from '@/components/Button'
+import FilePreview from '@/components/FilePreview'
 import Header from '@/components/Header'
 import Loading from '@/components/Loading'
 import RichTextEditor from '@/components/RichTextEditor'
@@ -19,9 +20,19 @@ import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import { createOrUpdatePost } from '@/utils/databases/post'
+import { Database } from '@/utils/databases/types/database.types'
 import { uploadFile } from '@/utils/fileUtil'
 
+type OldPost = {
+  postId?: string
+  postBody?: string
+  fileUrl?: string
+}
+
+type PostPayload = Database['public']['Tables']['posts']['Update']
+
 const CreatePost = () => {
+  const { postId, postBody, fileUrl } = useLocalSearchParams<OldPost>()
   const [loading, setLoading] = useState(false)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [file, setFile] = useState<ImagePicker.ImagePickerAsset | null>(null)
@@ -61,11 +72,17 @@ const CreatePost = () => {
         newPostFile = uploadResponse.publicFileUrl
       }
 
-      await createOrUpdatePost({
+      const postPayload: PostPayload = {
         userId: userProfile.id,
         body: bodyRef.current,
         file: newPostFile,
-      })
+      }
+
+      if (postId) {
+        postPayload.id = postId
+      }
+
+      await createOrUpdatePost(postPayload)
 
       router.back()
     } catch (err: unknown) {
@@ -110,10 +127,17 @@ const CreatePost = () => {
     }
   }
 
+  useEffect(() => {
+    setTimeout(() => {
+      bodyRef.current = postBody ?? ''
+      editorRef.current?.setContentHTML(postBody ?? '')
+    }, 300)
+  }, [postBody])
+
   return (
     <ScreenWrapper withHeader={false}>
       <View>
-        <Header title="Create Post" />
+        <Header title={`${postId ? 'Update' : 'Create'} Post`} />
       </View>
       <View style={styles.container}>
         <View style={styles.publisherContainer}>
@@ -131,6 +155,7 @@ const CreatePost = () => {
             editorRef={editorRef}
             onChange={(html) => (bodyRef.current = html)}
           />
+          {!file && fileUrl && <FilePreview fileUrl={fileUrl} />}
           {file && (
             <View>
               {file.type === 'image' && (
@@ -189,7 +214,7 @@ const CreatePost = () => {
           </View>
         </ScrollView>
         <Button
-          title="Post"
+          title={postId ? 'Update' : 'Post'}
           loading={loading}
           onPress={handleSubmit}
           btnStyle={styles.submitBtn}
