@@ -9,6 +9,8 @@ export const getUserImageSrcUrl = (imagePath: string | null | undefined) => {
 
 type ValidFileSizeResult = { success: true } | { success: false; message: string }
 
+const bucketId = process.env.EXPO_PUBLIC_BUCKET_ID || 'uploads'
+
 export const isValidFileSize = (file: ImagePickerAsset): ValidFileSizeResult => {
   const DEFAULT_MAX_FILE_SIZE = 10
 
@@ -59,8 +61,6 @@ export const uploadFile = async (
     }
 
     const fileName = `${folder}/${Date.now()}${EXTENSIONS[file.type as keyof typeof EXTENSIONS]}`
-
-    const bucketId = process.env.EXPO_PUBLIC_BUCKET_ID || 'uploads'
 
     const fileArrayBuffer = await getFileArrayBuffer(file.uri)
 
@@ -149,4 +149,15 @@ export const deleteFile = async (fileUri?: string | null) => {
   } catch (error) {
     console.warn('File cleanup failed:', error)
   }
+}
+
+export const removeFile = async (fileUrl: string) => {
+  const filePath = fileUrl.split(`/storage/v1/object/public/${bucketId}/`)[1]
+
+  if (!filePath) {
+    console.error('Invalid file URL')
+    return
+  }
+
+  await supabase.storage.from(bucketId).remove([filePath])
 }

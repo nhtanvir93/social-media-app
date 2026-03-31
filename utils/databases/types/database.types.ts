@@ -201,7 +201,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_post_with_relations: {
+        Args: {
+          post_id: string
+        }
+        Returns: void
+      }
     }
     Enums: {
       [_ in never]: never

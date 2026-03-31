@@ -30,6 +30,7 @@ import { supabase } from '@/lib/supabase'
 import {
   CommentRow,
   createPostComment,
+  deletePost,
   deletePostComment,
   fetchPostDetails,
   PostRowForList,
@@ -501,6 +502,10 @@ const PostDetails = () => {
   }
 
   const handleDelete = () => {
+    if (!postDetails) {
+      return
+    }
+
     Alert.alert('Confirm', 'Do you want to delete this post ?', [
       {
         text: 'Cancel',
@@ -509,7 +514,16 @@ const PostDetails = () => {
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: async () => {},
+        onPress: async () => {
+          const response = await deletePost(postDetails.id)
+
+          if (!response.success) {
+            Alert.alert('Error', response.message)
+            return
+          }
+
+          router.back()
+        },
       },
     ])
   }

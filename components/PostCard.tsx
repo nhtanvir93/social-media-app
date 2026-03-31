@@ -152,7 +152,7 @@ const PostCardContainer = ({
           </View>
         </View>
         <View style={styles.actionsContainer}>
-          {showIcons && (
+          {showIcons && post.user.id === currentUser.id && (
             <View style={styles.actionIcons}>
               <Pressable
                 onPress={onEdit}

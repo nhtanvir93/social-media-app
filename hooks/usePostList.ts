@@ -75,7 +75,7 @@ const usePostList = ({
 
   const handlePostEvent = useCallback(
     async (payload: RealtimePostgresChangesPayload<PostRowWithoutUser>) => {
-      const { eventType, new: newPost } = payload
+      const { eventType, new: newPost, old: deletedPost } = payload
 
       if (eventType === 'INSERT') {
         if (!('userId' in newPost)) return
@@ -113,6 +113,12 @@ const usePostList = ({
               file: newPost.file,
             }
           }),
+        )
+      }
+
+      if (eventType === 'DELETE') {
+        setPosts((prevPosts) =>
+          prevPosts.filter((prevPost) => prevPost.id !== deletedPost.id),
         )
       }
     },

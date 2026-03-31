@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
+import { removeFile } from '../fileUtil'
 import { Database } from './types/database.types'
 
 type UserRow = Pick<Database['public']['Tables']['users']['Row'], 'id' | 'name' | 'image'>
@@ -253,5 +254,53 @@ export const fetchPostDetails = async (
   return {
     success: true,
     data: formatted,
+  }
+}
+
+type DeletePostResult =
+  | {
+      success: true
+    }
+  | {
+      success: false
+      message: string
+    }
+
+export const deletePost = async (postId: string): Promise<DeletePostResult> => {
+  const { data: postDetails, error } = await supabase
+    .from('posts')
+    .select(
+      `
+      id,
+      file
+      `,
+    )
+    .eq('id', postId)
+    .single()
+
+  if (error || !postDetails) {
+    console.log(`Fetch post details error while deleting: ${error.message}`)
+    return { success: false, message: 'Could not fetch post details while deleting' }
+  }
+
+  const { error: deleteError } = await supabase.rpc('delete_post_with_relations', {
+    post_id: postId,
+  })
+
+  if (deleteError) {
+    console.error(`Fetch post details error while deleting: ${deleteError.message}`)
+
+    return {
+      success: false,
+      message: 'Something went wrong while deleting the post. Please try again.',
+    }
+  }
+
+  if (postDetails.file) {
+    await removeFile(postDetails.file)
+  }
+
+  return {
+    success: true,
   }
 }
