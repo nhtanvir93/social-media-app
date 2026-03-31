@@ -144,7 +144,7 @@ const PostCardContainer = ({
             <Text style={styles.postDate}>{formatPostDate(post.createdAt)}</Text>
           </View>
         </View>
-        <Pressable>
+        <Pressable onPress={openPostDetails}>
           <Entypo name="dots-three-horizontal" size={16} color={theme.colors.textLight} />
         </Pressable>
       </View>
