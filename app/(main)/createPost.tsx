@@ -74,18 +74,26 @@ const CreatePost = () => {
 
       const postPayload: PostPayload = {
         userId: userProfile.id,
-        body: bodyRef.current,
-        file: newPostFile,
       }
 
       if (postId) {
         postPayload.id = postId
       }
 
+      if (bodyRef.current) {
+        postPayload.body = bodyRef.current
+      }
+
+      if (newPostFile) {
+        postPayload.file = newPostFile
+      }
+
       await createOrUpdatePost(postPayload)
 
       router.back()
     } catch (err: unknown) {
+      console.log('Error in upserting post', err)
+
       if (err instanceof Error) {
         Alert.alert('Create Post', 'Failed to create the post')
       }

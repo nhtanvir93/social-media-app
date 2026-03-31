@@ -266,10 +266,6 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: theme.colors.textLight,
   },
-  filePreview: {
-    height: heightPercentage(30),
-    width: '100%',
-  },
   actionContainer: {
     flexDirection: 'row',
     gap: 16,
