@@ -7,24 +7,35 @@ import { router } from 'expo-router'
 import React from 'react'
 import {
   Alert,
+  FlatList,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import Avatar from '@/components/Avatar'
 import Header from '@/components/Header'
+import Loading from '@/components/Loading'
+import PostCard from '@/components/PostCard'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
+import usePostList from '@/hooks/usePostList'
 import { supabase } from '@/lib/supabase'
 
 const Profile = () => {
   const { userProfile } = useAuth()
+
+  const { bottom } = useSafeAreaInsets()
+
+  const { posts, hasMorePosts, updatePosts } = usePostList({
+    userId: userProfile?.id,
+    onlyMe: true,
+  })
 
   return (
     <ScreenWrapper withHeader={false}>
@@ -49,38 +60,67 @@ const Profile = () => {
           </View>
         </View>
         <Text style={styles.profileName}>{userProfile?.name}</Text>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.detailsContainer}>
-            <View style={styles.infoSection}>
-              {userProfile && userProfile.email && (
-                <View style={styles.infoContainer}>
-                  <Fontisto name="email" size={24} color={theme.colors.primary} />
-                  <Text style={styles.infoText}>{userProfile.email}</Text>
+        <FlatList
+          data={posts}
+          keyExtractor={(post) => post.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listStyle,
+            { paddingBottom: bottom + 120 },
+            posts.length === 0 && styles.emptyList,
+          ]}
+          ListHeaderComponent={
+            <>
+              <View style={styles.detailsContainer}>
+                <View style={styles.infoSection}>
+                  {userProfile?.email && (
+                    <View style={styles.infoContainer}>
+                      <Fontisto name="email" size={24} color={theme.colors.primary} />
+                      <Text style={styles.infoText}>{userProfile.email}</Text>
+                    </View>
+                  )}
+                  {userProfile?.phoneNumber && (
+                    <View style={styles.infoContainer}>
+                      <Entypo name="mobile" size={24} color={theme.colors.primary} />
+                      <Text style={styles.infoText}>{userProfile.phoneNumber}</Text>
+                    </View>
+                  )}
+                  {userProfile?.bio && (
+                    <View style={styles.infoContainer}>
+                      <Octicons name="quote" size={24} color={theme.colors.primary} />
+                      <Text style={styles.infoText}>{userProfile.bio}</Text>
+                    </View>
+                  )}
                 </View>
-              )}
-              {userProfile && userProfile.phoneNumber && (
-                <View style={styles.infoContainer}>
-                  <Entypo name="mobile" size={24} color={theme.colors.primary} />
-                  <Text style={styles.infoText}>{userProfile.phoneNumber}</Text>
+
+                <View style={styles.infoSection}>
+                  {userProfile?.address && (
+                    <View style={styles.infoContainer}>
+                      <Entypo name="address" size={24} color={theme.colors.primary} />
+                      <Text style={styles.infoText}>{userProfile.address}</Text>
+                    </View>
+                  )}
                 </View>
-              )}
-              {userProfile && userProfile.bio && (
-                <View style={styles.infoContainer}>
-                  <Octicons name="quote" size={24} color={theme.colors.primary} />
-                  <Text style={styles.infoText}>{userProfile.bio}</Text>
-                </View>
-              )}
-            </View>
-            <View style={styles.infoSection}>
-              {userProfile && userProfile.address && (
-                <View style={styles.infoContainer}>
-                  <Entypo name="address" size={24} color={theme.colors.primary} />
-                  <Text style={styles.infoText}>{userProfile.address}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        </ScrollView>
+              </View>
+            </>
+          }
+          renderItem={({ item: post }) => (
+            <PostCard post={post} router={router} isCommentClickable={true} />
+          )}
+          onEndReached={updatePosts}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            hasMorePosts ? (
+              <View style={styles.regularLoader}>
+                <Loading />
+              </View>
+            ) : (
+              <View style={styles.noPostMsgContainer}>
+                <Text style={styles.noPostMsg}>No more posts</Text>
+              </View>
+            )
+          }
+        />
       </View>
     </ScreenWrapper>
   )
@@ -143,7 +183,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   detailsContainer: {
-    marginTop: heightPercentage(4),
+    marginVertical: heightPercentage(2),
     gap: 20,
   },
   infoSection: {
@@ -183,5 +223,24 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  listStyle: {
+    gap: 10,
+  },
+  emptyList: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  regularLoader: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  noPostMsgContainer: {
+    marginVertical: 15,
+  },
+  noPostMsg: {
+    color: theme.colors.text,
+    fontSize: heightPercentage(2),
+    textAlign: 'center',
   },
 })

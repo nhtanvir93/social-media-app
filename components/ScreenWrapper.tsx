@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { heightPercentage, widthPercentage } from '@/helpers/common'
+import { widthPercentage } from '@/helpers/common'
 
 const ScreenWrapper = ({
   children,
@@ -13,7 +13,7 @@ const ScreenWrapper = ({
   bgColor?: string
   withHeader?: boolean
 }) => {
-  const { top } = useSafeAreaInsets()
+  const { top, bottom } = useSafeAreaInsets()
   const paddingTop = top > 0 ? top + 20 : 30
   const finalPaddingTop = withHeader ? 5 : paddingTop
 
@@ -24,6 +24,7 @@ const ScreenWrapper = ({
         {
           paddingTop: finalPaddingTop,
           backgroundColor: bgColor,
+          paddingBottom: bottom,
         },
       ]}
     >
@@ -38,6 +39,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: widthPercentage(6),
-    paddingVertical: heightPercentage(6),
   },
 })
