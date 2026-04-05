@@ -87,12 +87,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   author: {
-    fontSize: heightPercentage(2),
-    lineHeight: heightPercentage(2),
+    fontSize: heightPercentage(1.7),
+    fontWeight: theme.fonts.extraBold,
+    lineHeight: heightPercentage(1.5),
   },
   commentTime: {
-    fontSize: heightPercentage(1.2),
-    lineHeight: heightPercentage(2),
+    fontSize: heightPercentage(1.4),
+    lineHeight: heightPercentage(1.5),
     color: theme.colors.textLight,
   },
 })
