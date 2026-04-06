@@ -35,7 +35,7 @@ const Notifications = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.listStyle,
-            notifications.length === 0 && styles.emptyList,
+            hasMoreNotifications && styles.emptyList,
           ]}
           renderItem={({ item: notification }) => (
             <View style={styles.notification}>
@@ -52,7 +52,7 @@ const Notifications = () => {
             hasMoreNotifications ? (
               <View
                 style={[
-                  notifications.length === 0 ? styles.regularLoader : styles.centerLoader,
+                  hasMoreNotifications ? styles.regularLoader : styles.centerLoader,
                 ]}
               >
                 <Loading />

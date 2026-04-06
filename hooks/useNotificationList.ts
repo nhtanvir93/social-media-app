@@ -44,14 +44,14 @@ const useNotificationList = ({
       return
     }
 
-    if (result.data.length > 0) {
-      const newNotifications = result.data.filter((newNotification) => {
-        const found = notificationIdsRef.current.has(newNotification.id)
-        notificationIdsRef.current.add(newNotification.id)
+    const newNotifications = result.data.filter((newNotification) => {
+      const found = notificationIdsRef.current.has(newNotification.id)
+      notificationIdsRef.current.add(newNotification.id)
 
-        return found === false
-      })
+      return found === false
+    })
 
+    if (newNotifications.length > 0) {
       if (newNotifications.length === 0) {
         return
       }
@@ -65,6 +65,8 @@ const useNotificationList = ({
 
   const handleNotificationInsertEvent = useCallback(
     async (payload: RealtimePostgresInsertPayload<NotificationRow>) => {
+      console.log('New Notification Added', payload)
+
       const { new: newNotification } = payload
 
       if (notificationIdsRef.current.has(newNotification.id)) {
@@ -100,36 +102,41 @@ const useNotificationList = ({
     updateNotifications()
 
     const channel = supabase
-      .channel('realtime:posts-app')
+      .channel(`realtime:notifications:userId:${userId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `receiverId=eq.${userId}`,
+        },
         handleNotificationInsertEvent,
       )
       .subscribe((status) => {
-        console.log('Realtime status (posts):', status)
+        console.log('Realtime status (notifications):', status)
 
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Connected to realtime (posts)')
+          console.log('✅ Connected to realtime (notifications)')
         }
 
         if (status === 'CHANNEL_ERROR') {
-          console.log('❌ Channel error (posts)')
+          console.log('❌ Channel error (notifications)')
         }
 
         if (status === 'TIMED_OUT') {
-          console.log('⏱️ Subscription timed out (posts)')
+          console.log('⏱️ Subscription timed out (notifications)')
         }
 
         if (status === 'CLOSED') {
-          console.log('🔌 Channel closed (posts)')
+          console.log('🔌 Channel closed (notifications)')
         }
       })
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [updateNotifications, handleNotificationInsertEvent])
+  }, [updateNotifications, handleNotificationInsertEvent, userId])
 
   return {
     notifications,

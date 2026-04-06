@@ -1,6 +1,9 @@
+import { PostgrestError } from '@supabase/supabase-js'
+
 import { supabase } from '@/lib/supabase'
 
 import { removeFile } from '../fileUtil'
+import { createNotification } from './notification'
 import { Database } from './types/database.types'
 
 type UserRow = Pick<Database['public']['Tables']['users']['Row'], 'id' | 'name' | 'image'>
@@ -56,6 +59,47 @@ export const createPostLike = async (postLikeInsert: PostLikeInsert) => {
   return data
 }
 
+const createPostCommentNotification = async ({
+  commentId,
+  postId,
+  senderId,
+}: {
+  commentId: string
+  postId: string
+  senderId: string
+}) => {
+  const { data, error } = await supabase
+    .from('posts')
+    .select('id, userId')
+    .eq('id', postId)
+    .single()
+
+  if (error) {
+    console.log(`Fetching post details error for notification`, error.message)
+    return
+  }
+
+  try {
+    await createNotification({
+      title: `NEW NOTIFICATION (COMMENT_ID : ${commentId}, POST_ID : ${postId})`,
+      data: {
+        postId,
+        commentId,
+      },
+      senderId,
+      receiverId: data.userId,
+    })
+  } catch (error: unknown) {
+    if (error instanceof PostgrestError) {
+      console.log(`Failed to add notification on error - ${error.message}`)
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      console.log(`Failed to add notification on unknown error - ${error.message}`)
+    } else {
+      console.log('Something went wrong while adding notification')
+    }
+  }
+}
+
 export const createPostComment = async (postCommentInsert: PostCommentInsert) => {
   const { data, error } = await supabase
     .from('comments')
@@ -75,6 +119,12 @@ export const createPostComment = async (postCommentInsert: PostCommentInsert) =>
     .single()
 
   if (error) throw error
+
+  await createPostCommentNotification({
+    commentId: data.id,
+    postId: postCommentInsert.postId,
+    senderId: postCommentInsert.userId,
+  })
 
   return data
 }
