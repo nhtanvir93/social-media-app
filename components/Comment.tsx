@@ -17,11 +17,13 @@ const Comment = ({
   currentUser,
   comment,
   onDelete,
+  highlight,
 }: {
   postUserId: string
   currentUser: UserProfileRow
   comment: CommentRow
   onDelete: (comment: CommentRow) => void
+  highlight: boolean
 }) => {
   const removeComment = () => {
     Alert.alert('Confirm', 'Are you sure you want to delete this comment ?', [
@@ -42,7 +44,7 @@ const Comment = ({
   return (
     <View style={styles.container}>
       <Avatar uri={comment.author.image} />
-      <View style={styles.commentContainer}>
+      <View style={[styles.commentContainer, highlight && styles.primaryBorder]}>
         <View style={styles.authorCommentInfo}>
           <Text>
             <Text style={styles.author}>{comment.author.name}</Text>
@@ -68,6 +70,10 @@ const Comment = ({
 export default Comment
 
 const styles = StyleSheet.create({
+  primaryBorder: {
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  },
   container: {
     flexDirection: 'row',
     gap: 7,

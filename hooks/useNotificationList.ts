@@ -22,7 +22,6 @@ const useNotificationList = ({
 }) => {
   const [notifications, setNotifications] = useState<NotificationWithSenderRow[]>([])
   const [hasMoreNotifications, setHasMoreNotifications] = useState(true)
-  const [newNotificationCount, setNewNotificationCount] = useState(0)
 
   const notificationIdsRef = useRef(new Set<string>())
 
@@ -89,14 +88,9 @@ const useNotificationList = ({
       }
 
       setNotifications((prev) => [updatedNotification, ...prev])
-      setNewNotificationCount((prev) => prev + 1)
     },
     [setNotifications],
   )
-
-  const clearNewNotification = useCallback(() => {
-    setNewNotificationCount(0)
-  }, [])
 
   useEffect(() => {
     updateNotifications()
@@ -140,10 +134,8 @@ const useNotificationList = ({
 
   return {
     notifications,
-    newNotificationCount,
     hasMoreNotifications,
     updateNotifications,
-    clearNewNotification,
   }
 }
 

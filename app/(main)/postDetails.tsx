@@ -53,7 +53,10 @@ const PostDetails = () => {
 
   const { userProfile } = useAuth()
   const router = useRouter()
-  const { postId } = useLocalSearchParams<{ postId: string }>()
+  const { postId, commentId } = useLocalSearchParams<{
+    postId: string
+    commentId: string
+  }>()
 
   const updatePostDetails = useCallback(async () => {
     if (!userProfile?.id || !postId) return
@@ -596,6 +599,7 @@ const PostDetails = () => {
                   postUserId={postDetails.user.id}
                   comment={postComment}
                   onDelete={(comment: CommentRow) => deleteComment(comment)}
+                  highlight={postComment.id === commentId}
                 />
               ))}
             </View>

@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import React from 'react'
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import Avatar from '@/components/Avatar'
 import Header from '@/components/Header'
@@ -10,18 +11,16 @@ import { heightPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
 import useNotificationList from '@/hooks/useNotificationList'
 
+type NotificationDataType = {
+  postId: string
+  commentId: string
+}
+
 const Notifications = () => {
   const { userProfile } = useAuth()
-  const {
-    updateNotifications,
-    notifications,
-    hasMoreNotifications,
-    clearNewNotification,
-  } = useNotificationList({ userId: userProfile?.id, canUpdate: true })
-
-  useEffect(() => {
-    clearNewNotification()
-  }, [clearNewNotification])
+  const router = useRouter()
+  const { updateNotifications, notifications, hasMoreNotifications } =
+    useNotificationList({ userId: userProfile?.id, canUpdate: true })
 
   return (
     <ScreenWrapper withHeader={false}>
@@ -38,13 +37,30 @@ const Notifications = () => {
             hasMoreNotifications && styles.emptyList,
           ]}
           renderItem={({ item: notification }) => (
-            <View style={styles.notification}>
+            <Pressable
+              style={styles.notification}
+              onPress={() => {
+                if (!notification.data) {
+                  return
+                }
+
+                const data: NotificationDataType =
+                  typeof notification.data === 'string'
+                    ? JSON.parse(notification.data)
+                    : notification.data
+
+                router.push({
+                  pathname: '/postDetails',
+                  params: data,
+                })
+              }}
+            >
               <Avatar uri={notification.sender.image} />
               <View>
                 <Text style={styles.author}>{notification.sender.name}</Text>
                 <Text style={styles.staticInfo}>commented on your post</Text>
               </View>
-            </View>
+            </Pressable>
           )}
           onEndReached={updateNotifications}
           onEndReachedThreshold={0}
