@@ -13,7 +13,13 @@ type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
 const LIMIT = 20
 
-const usePostList = ({ userId }: { userId?: string }) => {
+const useNotificationList = ({
+  userId,
+  canUpdate = false,
+}: {
+  userId?: string
+  canUpdate?: boolean
+}) => {
   const [notifications, setNotifications] = useState<NotificationWithSenderRow[]>([])
   const [hasMoreNotifications, setHasMoreNotifications] = useState(true)
   const [newNotificationCount, setNewNotificationCount] = useState(0)
@@ -23,6 +29,10 @@ const usePostList = ({ userId }: { userId?: string }) => {
   const offsetRef = useRef(0)
 
   const updateNotifications = useCallback(async () => {
+    if (!canUpdate) {
+      return
+    }
+
     if (!userId || !hasMoreNotifications) {
       return
     }
@@ -51,7 +61,7 @@ const usePostList = ({ userId }: { userId?: string }) => {
     } else {
       setHasMoreNotifications(false)
     }
-  }, [userId, hasMoreNotifications])
+  }, [userId, hasMoreNotifications, canUpdate])
 
   const handleNotificationInsertEvent = useCallback(
     async (payload: RealtimePostgresInsertPayload<NotificationRow>) => {
@@ -81,6 +91,10 @@ const usePostList = ({ userId }: { userId?: string }) => {
     },
     [setNotifications],
   )
+
+  const clearNewNotification = useCallback(() => {
+    setNewNotificationCount(0)
+  }, [])
 
   useEffect(() => {
     updateNotifications()
@@ -120,7 +134,10 @@ const usePostList = ({ userId }: { userId?: string }) => {
   return {
     notifications,
     newNotificationCount,
+    hasMoreNotifications,
+    updateNotifications,
+    clearNewNotification,
   }
 }
 
-export default usePostList
+export default useNotificationList

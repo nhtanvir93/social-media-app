@@ -12,12 +12,17 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import { theme } from '@/constants/theme'
 import { heightPercentage, widthPercentage } from '@/helpers/common'
 import { useAuth } from '@/hooks/useAuth'
+import useNotificationList from '@/hooks/useNotificationList'
 import usePostList from '@/hooks/usePostList'
 
 const Home = () => {
   const { userProfile } = useAuth()
 
   const { posts, hasMorePosts, updatePosts } = usePostList({
+    userId: userProfile?.id,
+  })
+
+  const { newNotificationCount } = useNotificationList({
     userId: userProfile?.id,
   })
 
@@ -38,6 +43,13 @@ const Home = () => {
             onPress={() => router.push('/notifications')}
           >
             <Ionicons name="notifications" size={24} color={theme.colors.primary} />
+            {newNotificationCount > 0 && (
+              <View style={styles.newNotificationAlert}>
+                <Text style={styles.newNotificationText}>
+                  {newNotificationCount > 99 ? '99+' : newNotificationCount}
+                </Text>
+              </View>
+            )}
           </Pressable>
           <Pressable
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
@@ -136,5 +148,21 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: heightPercentage(2),
     textAlign: 'center',
+  },
+  newNotificationAlert: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    backgroundColor: 'red',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  newNotificationText: {
+    color: '#fff',
+    fontSize: 8,
+    fontWeight: 'bold',
   },
 })
